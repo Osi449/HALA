@@ -992,8 +992,8 @@ function anResultHTML(eid,months,info,fin){
   // Chart - simple bars
   const maxSales=Math.max(...months.map(m=>m.sales));
   html+=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><div style="font-size:13px;font-weight:700;">📈 ترند المبيعات</div><div style="font-size:11px;color:#9CA3AF;">${mLbl(months[0]?.month)} ← ${mLbl(months[months.length-1]?.month)}</div></div>
-    <div style="display:flex;gap:3px;align-items:flex-end;height:120px;overflow-x:auto;">
-      ${months.map(m=>{const p=maxSales>0?m.sales/maxSales*100:0;const isH=m.sales>avg*1.2,isL=m.sales<avg*0.8;const c=isH?'#166534':isL?'#DC2626':'#D97706';return`<div style="flex:1;min-width:16px;display:flex;flex-direction:column;align-items:center;gap:2px;" title="${mLbl(m.month)}: ${m.sales.toLocaleString('ar-SA',{maximumFractionDigits:0})}"><div style="width:100%;height:${Math.max(p,2)}%;background:${c};border-radius:3px 3px 0 0;min-height:3px;"></div><div style="font-size:7px;color:#9CA3AF;white-space:nowrap;">${m.month.slice(2)}</div></div>`;}).join('')}
+    <div style="display:flex;gap:3px;align-items:flex-end;height:140px;background:#FAFAFA;border-radius:8px;padding:8px 4px 4px;overflow-x:auto;">
+      ${months.map(m=>{const p=maxSales>0?Math.max((m.sales/maxSales)*100,2):2;const isH=m.sales>avg*1.2,isL=m.sales<avg*0.8;const c=isH?'#166534':isL?'#DC2626':'#D97706';return`<div style="flex:1;min-width:14px;max-width:40px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;height:100%;"><div style="width:80%;height:${p}%;background:${c};border-radius:3px 3px 0 0;min-height:3px;"></div><div style="font-size:7px;color:#9CA3AF;white-space:nowrap;">${m.month.slice(5)}</div></div>`;}).join('')}
     </div>
     <div style="border-top:1px dashed #E5E7EB;margin:10px 0;position:relative;"><span style="font-size:9px;color:#D97706;position:absolute;top:-8px;background:#fff;padding:0 4px;">متوسط</span></div>
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;">
