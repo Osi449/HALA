@@ -989,16 +989,38 @@ function anResultHTML(eid,months,info,fin){
   </div>`;
   if(info.name||info.cashier)html+=`<div style="padding:14px 20px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">${[{l:'المحاسب',v:info.cashier||'—'},{l:'المدير',v:info.manager||'—'},{l:'المنطقة',v:info.zone||'—'},{l:'السجل',v:info.code||'—'}].map(x=>`<div style="background:#FAFAFA;border-radius:10px;padding:10px 12px;"><div style="font-size:9px;color:#9CA3AF;letter-spacing:1px;margin-bottom:3px;">${x.l}</div><div style="font-size:12px;font-weight:600;word-break:break-all;">${x.v}</div></div>`).join('')}</div>`;
   html+='</div>';
-  // Chart - simple bars
+  // Chart - SVG line chart
   const maxSales=Math.max(...months.map(m=>m.sales));
-  html+=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><div style="font-size:13px;font-weight:700;">📈 ترند المبيعات</div><div style="font-size:11px;color:#9CA3AF;">${mLbl(months[0]?.month)} ← ${mLbl(months[months.length-1]?.month)}</div></div>
-    <div style="display:flex;gap:3px;align-items:flex-end;height:140px;background:#FAFAFA;border-radius:8px;padding:8px 4px 4px;overflow-x:auto;">
-      ${months.map(m=>{const p=maxSales>0?Math.max((m.sales/maxSales)*100,2):2;const isH=m.sales>avg*1.2,isL=m.sales<avg*0.8;const c=isH?'#166534':isL?'#DC2626':'#D97706';return`<div style="flex:1;min-width:14px;max-width:40px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:2px;height:100%;"><div style="width:80%;height:${p}%;background:${c};border-radius:3px 3px 0 0;min-height:3px;"></div><div style="font-size:7px;color:#9CA3AF;white-space:nowrap;">${m.month.slice(5)}</div></div>`;}).join('')}
-    </div>
-    <div style="border-top:1px dashed #E5E7EB;margin:10px 0;position:relative;"><span style="font-size:9px;color:#D97706;position:absolute;top:-8px;background:#fff;padding:0 4px;">متوسط</span></div>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px;">
-      ${[{l:'أعلى شهر',v:fmt(maxM?.sales),s:mLbl(maxM?.month),c:'#166534'},{l:'أدنى شهر',v:fmt(minM?.sales),s:mLbl(minM?.month),c:'#DC2626'},{l:'المتوسط',v:fmt(avg),s:'كل الفترة',c:'#1A1A2E'},{l:'الإجمالي',v:fmt(months.reduce((a,b)=>a+b.sales,0)),s:'ريال',c:'#15803D'}].map(x=>`<div style="background:#FAFAFA;border-radius:10px;padding:10px 8px;text-align:center;"><div style="font-size:9px;color:#9CA3AF;margin-bottom:3px;">${x.l}</div><div style="font-size:16px;font-weight:800;color:${x.c};">${x.v}</div><div style="font-size:9px;color:#9CA3AF;margin-top:2px;">${x.s}</div></div>`).join('')}
-    </div></div>`;
+  const minSales=Math.min(...months.map(m=>m.sales));
+  const chartW=600,chartH=180,padL=50,padR=20,padT=30,padB=30;
+  const innerW=chartW-padL-padR,innerH=chartH-padT-padB;
+  const xStep=innerW/(months.length-1||1);
+  const yRange=maxSales-minSales||1;
+  const xp=i=>padL+i*xStep;
+  const yp=v=>padT+innerH-(((v-minSales)/yRange)*innerH);
+  const avgY=yp(avg);
+  const pts=months.map((m,i)=>({x:xp(i),y:yp(m.sales),v:m.sales,month:m.month}));
+  const polyline=pts.map(p=>p.x+','+p.y).join(' ');
+  const area='M'+pts[0].x+','+padT+innerH+padB+' '+pts.map(p=>'L'+p.x+','+p.y).join(' ')+' L'+pts[pts.length-1].x+','+(padT+innerH)+' Z';
+  html+=`<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:700;">📈 ترند المبيعات الشهرية</div><div style="font-size:11px;color:#9CA3AF;">${mLbl(months[0]?.month)} ← ${mLbl(months[months.length-1]?.month)}</div></div>
+  <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+  <svg width="${chartW}" height="${chartH}" viewBox="0 0 ${chartW} ${chartH}" style="min-width:${chartW}px;display:block;">
+    <defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22C55E" stop-opacity="0.3"/><stop offset="100%" stop-color="#22C55E" stop-opacity="0.02"/></linearGradient></defs>
+    <!-- Grid lines -->
+    ${[0,0.25,0.5,0.75,1].map(t=>{const y=padT+innerH*t;const v=maxSales-(t*(maxSales-minSales));return`<line x1="${padL}" y1="${y}" x2="${chartW-padR}" y2="${y}" stroke="#E5E7EB" stroke-width="1"/><text x="${padL-4}" y="${y+4}" text-anchor="end" font-size="9" fill="#9CA3AF">${fmt(v)}</text>`;}).join('')}
+    <!-- Avg line -->
+    <line x1="${padL}" y1="${avgY}" x2="${chartW-padR}" y2="${avgY}" stroke="#D97706" stroke-width="1" stroke-dasharray="4,4"/>
+    <text x="${chartW-padR+2}" y="${avgY+4}" font-size="9" fill="#D97706">متوسط</text>
+    <!-- Area -->
+    <path d="${area}" fill="url(#lg)"/>
+    <!-- Line -->
+    <polyline points="${polyline}" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <!-- Points + labels -->
+    ${pts.map((p,i)=>{const isH=p.v>avg*1.2,isL=p.v<avg*0.8;const c=isH?'#166534':isL?'#DC2626':'#22C55E';const label=fmt(p.v);const lx=Math.min(Math.max(p.x,padL+15),chartW-padR-15);const ly=p.y>padT+20?p.y-10:p.y+18;return`<circle cx="${p.x}" cy="${p.y}" r="4" fill="${c}" stroke="white" stroke-width="2"/><text x="${lx}" y="${ly}" text-anchor="middle" font-size="9" font-weight="700" fill="${c}">${label}</text><text x="${p.x}" y="${chartH-4}" text-anchor="middle" font-size="8" fill="#9CA3AF">${p.month.slice(2)}</text>`;}).join('')}
+  </svg></div>
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;">
+    ${[{l:'أعلى شهر',v:fmt(maxM?.sales),s:mLbl(maxM?.month),c:'#166534'},{l:'أدنى شهر',v:fmt(minM?.sales),s:mLbl(minM?.month),c:'#DC2626'},{l:'المتوسط',v:fmt(avg),s:'كل الفترة',c:'#1A1A2E'},{l:'الإجمالي',v:fmt(months.reduce((a,b)=>a+b.sales,0)),s:'ريال',c:'#15803D'}].map(x=>`<div style="background:#FAFAFA;border-radius:10px;padding:10px 8px;text-align:center;"><div style="font-size:9px;color:#9CA3AF;margin-bottom:3px;">${x.l}</div><div style="font-size:16px;font-weight:800;color:${x.c};">${x.v}</div><div style="font-size:9px;color:#9CA3AF;margin-top:2px;">${x.s}</div></div>`).join('')}
+  </div></div>`;
   // Volatility
   html+=`<div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:14px;">📊 تحليل الفولاتية</div>
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
