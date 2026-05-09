@@ -76,8 +76,9 @@ body{font-family:'Cairo',sans-serif;direction:rtl;background:#FAFAFA;color:#1A1A
     <div class="stat"><div class="stat-n" id="s-dep" style="color:#166534;">0</div><div class="stat-l">تم الإيداع 🏆</div></div>
   </div>
 
-  <!-- Filter -->
+  <!-- Filter by Action -->
   <div class="card" style="padding:12px 16px;">
+    <div style="font-size:11px;color:#9CA3AF;font-weight:700;margin-bottom:8px;letter-spacing:1px;">فلتر حسب الإجراء</div>
     <div class="filter-bar" id="filter-bar">
       <button class="fbtn active" onclick="setFilter('all')">الكل</button>
       <button class="fbtn" onclick="setFilter('interested')" style="color:#166534;">✅ مهتم</button>
@@ -85,6 +86,19 @@ body{font-family:'Cairo',sans-serif;direction:rtl;background:#FAFAFA;color:#1A1A
       <button class="fbtn" onclick="setFilter('deposited')" style="color:#166534;">🏆 تم الإيداع</button>
       <button class="fbtn" onclick="setFilter('not')" style="color:#DC2626;">❌ غير مهتم</button>
       <button class="fbtn" onclick="setFilter('pending')" style="color:#9CA3AF;">⬜ لم يُحدَّد</button>
+    </div>
+  </div>
+
+  <!-- Filter by Client Type -->
+  <div class="card" style="padding:12px 16px;">
+    <div style="font-size:11px;color:#9CA3AF;font-weight:700;margin-bottom:8px;letter-spacing:1px;">فلتر حسب نوع العميل</div>
+    <div class="filter-bar" id="type-filter-bar">
+      <button class="fbtn active" onclick="setTypeFilter('all')">الكل</button>
+      <button class="fbtn" onclick="setTypeFilter('Eligible before')" style="color:#6B21A8;">Eligible before</button>
+      <button class="fbtn" onclick="setTypeFilter('Financing P2')" style="color:#1D4ED8;">Financing P2</button>
+      <button class="fbtn" onclick="setTypeFilter('Eligible this month')" style="color:#065F46;">Eligible this month</button>
+      <button class="fbtn" onclick="setTypeFilter('Top-up/Early Settle')" style="color:#D97706;">Top-up/Early Settle</button>
+      <button class="fbtn" onclick="setTypeFilter('Disbursed before')" style="color:#9D174D;">Disbursed before</button>
     </div>
   </div>
 
@@ -110,6 +124,7 @@ const isEmp=mlUser&&mlUser.role==='employee';
 
 // ── State ─────────────────────────────────
 let currentFilter='all';
+let currentTypeFilter='all';
 let actions={};
 const STORAGE_KEY='mylist_actions_'+(mlUser?.code||'x');
 
@@ -139,6 +154,13 @@ function getClients(){
   return empData?empData.clients:[];
 }
 
+function setTypeFilter(f){
+  currentTypeFilter=f;
+  document.querySelectorAll('#type-filter-bar .fbtn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderList();
+}
+
 function setFilter(f){
   currentFilter=f;
   document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));
@@ -150,12 +172,15 @@ function getAction(cashier){return actions[cashier]||null;}
 
 function renderList(){
   const all=getClients();
+  // Apply action filter
   let filtered=all;
   if(currentFilter==='interested')filtered=all.filter(c=>getAction(c.cashier)==='interested');
   else if(currentFilter==='later')filtered=all.filter(c=>getAction(c.cashier)==='later');
   else if(currentFilter==='deposited')filtered=all.filter(c=>getAction(c.cashier)==='deposited');
   else if(currentFilter==='not')filtered=all.filter(c=>getAction(c.cashier)==='not');
   else if(currentFilter==='pending')filtered=all.filter(c=>!getAction(c.cashier));
+  // Apply type filter
+  if(currentTypeFilter!=='all')filtered=filtered.filter(c=>c.filter===currentTypeFilter);
 
   // Stats
   document.getElementById('s-total').textContent=all.length;
