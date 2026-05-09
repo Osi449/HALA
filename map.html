@@ -123,6 +123,25 @@ select option{background:#3B0764;color:#fff;}
 const ZONE_CENTERS={C1:[24.720,46.660],C2:[24.620,46.730],C3:[24.580,46.780],C4:[24.560,46.810],C5:[24.500,46.750],C6:[24.640,46.700],C7:[24.680,46.720],C8:[24.700,46.740],C9:[24.650,46.680],C10:[24.600,46.660],C11:[24.580,46.700],C12:[24.700,46.800]};
 const BASE_URL=window.location.href.split('map.html')[0].split('?')[0];
 
+// ── Auth ─────────────────────────────────
+let mapUser=null;
+try{const u=localStorage.getItem('hu5');if(u)mapUser=JSON.parse(u);}catch(e){}
+
+// إذا ما في جلسة — وجّهه للرئيسية
+if(!mapUser){
+  document.body.innerHTML='<div style="min-height:100vh;background:linear-gradient(135deg,#6B21A8,#7C3AED);display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;"><div><div style="font-size:52px;margin-bottom:16px;">🔐</div><div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:8px;">يجب تسجيل الدخول أولاً</div><a href="index.html" style="display:inline-block;margin-top:16px;padding:12px 28px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);border-radius:12px;color:#fff;font-size:14px;font-weight:700;text-decoration:none;">الذهاب للرئيسية</a></div></div>';
+}
+
+const isSup=mapUser&&(mapUser.role==='supervisor'||mapUser.role==='region');
+const isEmp=mapUser&&mapUser.role==='employee';
+
+// خريطة الموظف لزونه فقط
+const EMP_ZONE_MAP={
+  'C1-KR':'C1-KR','C2-SM':'C2-SM','C3-MQ':'C3-MQ','C4-MN':'C4-MN',
+  'C5-MS':'C5-MS','C6-AS':'C6-AS','C7-AA':'C7-AA','C8-AH':'C8-AH',
+  'C9-BJ':'C9-BJ','C10-AR':'C10-AR','C11-KS':'C11-KS','C12-FA':'C12-FA'
+};
+
 const map=L.map('map').setView([24.68,46.72],11);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
 let markers={};
@@ -287,6 +306,54 @@ function finishLoad(){
   renderMarkers();
   loading(false);
 }
+
+// ── تهيئة الصفحة حسب الدور ────────────────
+function initMapAccess(){
+  if(!mapUser)return;
+  
+  const sel=document.getElementById('emp-select');
+  const ctrl=document.getElementById('controls');
+  
+  if(isEmp){
+    // الموظف يشوف زونه فقط — أخفِ القائمة
+    const empCode=mapUser.code; // e.g. C5-MS
+    if(EMP_ZONE_MAP[empCode]){
+      // أخفِ كل الخيارات إلا خياره
+      Array.from(sel.options).forEach(opt=>{
+        if(opt.value && opt.value!==empCode) opt.style.display='none';
+      });
+      // حمّل بياناته تلقائياً
+      sel.value=empCode;
+      sel.style.display='none'; // أخفِ القائمة كلها
+      // أضف اسم الموظف بدلها
+      const nameSpan=document.createElement('span');
+      nameSpan.textContent='📍 '+mapUser.name+' — زونك فقط';
+      nameSpan.style.cssText='font-size:12px;color:#86EFAC;font-weight:700;';
+      ctrl.insertBefore(nameSpan, sel.nextSibling);
+      currentEmp=empCode;
+      actions=loadActions(empCode);
+      loading(true);
+      const varName='EMP_DATA_'+empCode.replace(/-/g,'_');
+      if(window[varName]){currentData=window[varName];finishLoad();return;}
+      const fileCode=empCode.replace('-','');
+      const script=document.createElement('script');
+      script.src=BASE_URL+'clients_'+fileCode+'.js';
+      script.onload=()=>{currentData=window[varName];finishLoad();};
+      script.onerror=()=>{loading(false);};
+      document.head.appendChild(script);
+    }
+  } else {
+    // المشرف والمدير يشوفون كل الخيارات
+    // أضف اسم المستخدم
+    const nameSpan=document.createElement('span');
+    nameSpan.textContent='👤 '+mapUser.name;
+    nameSpan.style.cssText='font-size:12px;color:#86EFAC;font-weight:700;margin-right:8px;';
+    ctrl.prepend(nameSpan);
+  }
+}
+
+// شغّل بعد تحميل الصفحة
+window.addEventListener('load', initMapAccess);
 </script>
 </body>
 </html>
