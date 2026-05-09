@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>هلا تمويل — خريطة العملاء</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cairo',sans-serif;direction:rtl;background:#1A1A2E;color:#fff;}
+#topbar{background:linear-gradient(135deg,#6B21A8,#7C3AED);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000;}
+.logo-text{font-size:14px;font-weight:900;color:#fff;}
+#map{height:calc(100vh - 110px);}
+#controls{background:rgba(107,33,168,0.95);padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,0.1);}
+.ctrl-label{font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;}
+select{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:6px 12px;color:#fff;font-size:13px;font-family:'Cairo',sans-serif;cursor:pointer;}
+select option{background:#3B0764;color:#fff;}
+#count-badge{background:rgba(255,255,255,0.15);border-radius:20px;padding:4px 14px;font-size:12px;color:#86EFAC;font-weight:700;}
+#loading{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(26,26,46,0.85);display:none;align-items:center;justify-content:center;z-index:2000;flex-direction:column;gap:12px;}
+#loading.show{display:flex;}
+.spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,0.2);border-top:4px solid #A855F7;border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.client-popup{min-width:240px;direction:rtl;font-family:'Cairo',sans-serif;}
+.popup-name{font-size:13px;font-weight:800;color:#1A1A2E;margin-bottom:8px;line-height:1.4;}
+.popup-cat{font-size:10px;color:#6B21A8;background:#F5F3FF;padding:2px 8px;border-radius:8px;display:inline-block;margin-bottom:8px;}
+.popup-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:5px 0;border-bottom:1px solid #E5E7EB;gap:6px;}
+.popup-row:last-child{border:none;padding-bottom:0;}
+.popup-label{color:#9CA3AF;flex-shrink:0;}
+.popup-val{font-weight:700;color:#1A1A2E;}
+.popup-nums{display:flex;gap:4px;align-items:center;}
+.btn-call{padding:2px 8px;border-radius:6px;font-size:10px;text-decoration:none;font-weight:700;color:#fff;white-space:nowrap;}
+.btn-copy{padding:2px 6px;background:#E5E7EB;border:none;border-radius:6px;font-size:10px;cursor:pointer;color:#374151;}
+.btn-nav{width:100%;padding:9px;background:linear-gradient(135deg,#166534,#15803D);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;text-decoration:none;display:block;text-align:center;margin-top:10px;}
+.class-badge{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
+.Gold{background:#FEF3C7;color:#D97706;}
+.Silver{background:#F3F4F6;color:#6B7280;}
+.Bronze{background:#FEF2F2;color:#DC2626;}
+</style>
+</head>
+<body>
+<div id="topbar">
+  <div style="display:flex;align-items:center;gap:8px;">
+    <svg width="28" height="28" viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="14" fill="rgba(255,255,255,0.15)"/><path d="M14 44V16h8v11h16V16h8v28h-8V35H22v9H14z" fill="#C4B5FD"/><circle cx="46" cy="16" r="5" fill="#22C55E"/></svg>
+    <div class="logo-text">خريطة العملاء غير المزارين 🗺️</div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <span id="count-badge">اختر موظف</span>
+    <a href="index.html" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:5px 12px;color:#fff;font-size:12px;text-decoration:none;">🏠</a>
+  </div>
+</div>
+<div id="controls">
+  <span class="ctrl-label">👤 الموظف:</span>
+  <select id="emp-select" onchange="onEmpChange()">
+    <option value="">-- اختر الموظف --</option>
+    <option value="C1KR">C1-KR — Khalilul Rahman (C1)</option>
+    <option value="C2SM">C2-SM — Syed Masee Ullah (C2)</option>
+    <option value="C3MQ">C3-MQ — Mohammed Qemaruddin (C3)</option>
+    <option value="C4MN">C4-MN — Mahmood Najebullah (C4)</option>
+    <option value="C5MS">C5-MS — Mohammed Sheer (C5)</option>
+    <option value="C6AS">C6-AS — Abdullah Saleh (C6)</option>
+    <option value="C7AA">C7-AA — Abdulmajeed (C7)</option>
+    <option value="C8AH">C8-AH — Abdullah Habiburhman (C8)</option>
+    <option value="C9BJ">C9-BJ — Burhan Jamal (C9)</option>
+    <option value="C10AR">C10-AR — Abdulrahman (C10)</option>
+    <option value="C11KS">C11-KS — Khaled Aydin (C11)</option>
+    <option value="C12FA">C12-FA — Faisal Khan (C12)</option>
+  </select>
+  <span class="ctrl-label">🏅 التصنيف:</span>
+  <select id="cls-filter" onchange="applyFilter()">
+    <option value="all">الكل</option>
+    <option value="Gold">Gold 🥇</option>
+    <option value="Silver">Silver 🥈</option>
+    <option value="Bronze">Bronze 🥉</option>
+  </select>
+</div>
+<div id="map"></div>
+<div id="loading"><div class="spinner"></div><div style="font-size:13px;color:#A855F7;">جاري تحميل بيانات الزون...</div></div>
+
+<script>
+const ZONE_CENTERS={C1:[24.720,46.660],C2:[24.620,46.730],C3:[24.580,46.780],C4:[24.560,46.810],C5:[24.500,46.750],C6:[24.640,46.700],C7:[24.680,46.720],C8:[24.700,46.740],C9:[24.650,46.680],C10:[24.600,46.660],C11:[24.580,46.700],C12:[24.700,46.800]};
+const CLASS_COLORS={Gold:'#D97706',Silver:'#6B7280',Bronze:'#DC2626'};
+const BASE_URL=window.location.href.replace('map.html','');
+
+const map=L.map('map').setView([24.68,46.72],11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
+let markers=L.layerGroup().addTo(map);
+let currentData=null;
+let loadedScripts={};
+
+function loading(show){document.getElementById('loading').className=show?'show':'';}
+
+function makeIcon(cls){
+  const c=CLASS_COLORS[cls]||'#6B7280';
+  return L.divIcon({html:`<svg xmlns="http://www.w3.org/2000/svg" width="22" height="30" viewBox="0 0 22 30"><path d="M11 0C4.9 0 0 4.9 0 11c0 8.3 11 19 11 19S22 19.3 22 11C22 4.9 17.1 0 11 0z" fill="${c}"/><circle cx="11" cy="11" r="5" fill="white"/></svg>`,className:'',iconSize:[22,30],iconAnchor:[11,30],popupAnchor:[0,-30]});
+}
+
+function copyNum(n){
+  navigator.clipboard.writeText(n).then(()=>alert('تم نسخ: '+n)).catch(()=>prompt('انسخ الرقم:',n));
+}
+
+function renderMarkers(clients){
+  markers.clearLayers();
+  const toShow=clients.slice(0,2000);
+  toShow.forEach(c=>{
+    const m=L.marker([c.lat,c.lng],{icon:makeIcon(c.class)});
+    const popup=`<div class="client-popup">
+      <div class="popup-name">${c.name}</div>
+      <div><span class="class-badge ${c.class}">${c.class}</span> <span class="popup-cat">${c.category}</span></div>
+      <div class="popup-row"><span class="popup-label">Cashier ID</span><span class="popup-val">${c.id}</span></div>
+      <div class="popup-row"><span class="popup-label">الزون</span><span class="popup-val">${c.zone}</span></div>
+      <div class="popup-row">
+        <span class="popup-label">📞 المحاسب</span>
+        <span class="popup-nums">
+          <span class="popup-val">${c.cashier}</span>
+          <a href="tel:${c.cashier}" class="btn-call" style="background:#166534;">📞</a>
+          <button class="btn-copy" onclick="copyNum('${c.cashier}')">نسخ</button>
+        </span>
+      </div>
+      <div class="popup-row">
+        <span class="popup-label">👔 المدير</span>
+        <span class="popup-nums">
+          <span class="popup-val">${c.owner}</span>
+          <a href="tel:${c.owner}" class="btn-call" style="background:#6B21A8;">📞</a>
+          <button class="btn-copy" onclick="copyNum('${c.owner}')">نسخ</button>
+        </span>
+      </div>
+      <a class="btn-nav" href="https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}" target="_blank">🗺️ توجيه Google Maps</a>
+    </div>`;
+    m.bindPopup(popup,{maxWidth:280,minWidth:240});
+    markers.addLayer(m);
+  });
+  const total=clients.length;
+  document.getElementById('count-badge').textContent=total.toLocaleString('ar-SA')+' عميل'+(total>2000?' (يُعرض 2000)':'');
+}
+
+function applyFilter(){
+  if(!currentData)return;
+  const cls=document.getElementById('cls-filter').value;
+  const filtered=cls==='all'?currentData.clients:currentData.clients.filter(c=>c.class===cls);
+  renderMarkers(filtered);
+}
+
+function onEmpChange(){
+  const code=document.getElementById('emp-select').value;
+  if(!code)return;
+  loading(true);
+  
+  // If already loaded
+  const varName='EMP_DATA_'+code.replace(/-/g,'_');
+  if(window[varName]){
+    currentData=window[varName];
+    finishLoad();
+    return;
+  }
+  
+  // Load script dynamically
+  const script=document.createElement('script');
+  script.src=BASE_URL+'clients_'+code+'.js';
+  script.onload=()=>{
+    currentData=window[varName];
+    finishLoad();
+  };
+  script.onerror=()=>{
+    loading(false);
+    alert('خطأ في تحميل البيانات — تأكد أن ملف clients_'+code+'.js موجود على GitHub');
+  };
+  document.head.appendChild(script);
+}
+
+function finishLoad(){
+  if(!currentData){loading(false);return;}
+  const zone=currentData.zone;
+  const center=ZONE_CENTERS[zone]||[24.68,46.72];
+  map.setView(center,12);
+  applyFilter();
+  loading(false);
+}
+</script>
+</body>
+</html>
