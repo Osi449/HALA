@@ -708,20 +708,38 @@ function renderShiftEmp(){
     },30000);
   } else {
     const t=sl.total_mins||0,under=t<420;
+    const resetReq=sl.reset_requested,resetAppr=sl.reset_approved;
     h+='<div class="card" style="text-align:center;padding:24px;">';
     h+='<div style="font-size:48px;margin-bottom:12px;">'+(under?'⚠️':'✅')+'</div>';
     h+='<div style="font-size:16px;font-weight:700;margin-bottom:4px;">انتهى الشفت</div>';
     h+='<div style="font-size:36px;font-weight:900;color:'+(under?'#DC2626':'#166534')+';margin-bottom:8px;">'+String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')+'</div>';
     if(under)h+='<div style="font-size:13px;color:#DC2626;margin-bottom:8px;">⚠️ أقل من 7 ساعات</div>';
-    h+='<div style="font-size:11px;color:#9CA3AF;">بدأ: '+new Date(sl.start_time).toLocaleTimeString('ar-SA')+' | انتهى: '+new Date(sl.end_time).toLocaleTimeString('ar-SA')+'</div>';
+    h+='<div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;">بدأ: '+new Date(sl.start_time).toLocaleTimeString('ar-SA')+' | انتهى: '+new Date(sl.end_time).toLocaleTimeString('ar-SA')+'</div>';
+        const _zc=sl.in_zone===true?'#166534':sl.in_zone===false?'#DC2626':'#9CA3AF';
+    const _zt=sl.in_zone===true?'📍 بدأ من الزون':sl.in_zone===false?'📍 لم يبدأ من الزون':'📍 غير محدد';
+    h+='<div style="font-size:11px;margin-bottom:16px;color:'+_zc+';">'+_zt+'</div>';
+    if(resetAppr){h+='<button class="btn-green" style="width:auto;padding:12px 28px;" onclick="doStartShift()">▶️ بدء شفت جديد</button>';}
+    else if(resetReq){h+='<div style="background:#FEF3C7;border:1px solid #FCD34D;border-radius:12px;padding:12px;font-size:13px;color:#92400E;">⏳ تم إرسال طلب إعادة البدء — بانتظار موافقة المشرف</div>';}
+    else{h+='<button class="btn-outline" style="margin-top:8px;" onclick="doReqReset()">🔄 طلب إعادة بدء الشفت</button>';}
     h+='</div>';
   }
   h+='</div>';
   document.getElementById('shift').innerHTML=h;
 }
 
-async function doStartShift(){
-  try{await dbUp('shift_logs',{agent_code:user.code,agent_name:user.name,shift_date:tod(),start_time:new Date().toISOString(),break_mins:0},'agent_code,shift_date');await loadShiftRec();renderShiftEmp();}
+function doStartShift(){
+  // سؤال هل أنت في زونك
+  document.getElementById('shift').innerHTML += '';
+  const pg = document.getElementById('shift');
+  const zoneQ = document.createElement('div');
+  zoneQ.id = 'zone-q';
+  zoneQ.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  zoneQ.innerHTML = '<div style="background:#fff;border-radius:20px;padding:32px 28px;max-width:340px;width:100%;text-align:center;"><div style=\"font-size:48px;margin-bottom:16px;\">📍</div><div style=\"font-size:18px;font-weight:800;margin-bottom:8px;\">هل أنت داخل زونك؟</div><div style=\"font-size:12px;color:#9CA3AF;margin-bottom:24px;\">قبل بدء الشفت</div><div style=\"display:flex;gap:12px;\"><button onclick=\"confirmStartShift(false)\" style=\"flex:1;padding:14px;background:#FEF2F2;border:1.5px solid #FECACA;border-radius:12px;color:#DC2626;font-size:15px;font-weight:700;cursor:pointer;font-family:Cairo,sans-serif;\">❌ لا</button><button onclick=\"confirmStartShift(true)\" style=\"flex:1;padding:14px;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;color:#166534;font-size:15px;font-weight:700;cursor:pointer;font-family:Cairo,sans-serif;\">✅ نعم</button></div></div>';
+  document.body.appendChild(zoneQ);
+}
+async function confirmStartShift(inZone){
+  const q=document.getElementById('zone-q');if(q)q.remove();
+  try{await dbUp('shift_logs',{agent_code:user.code,agent_name:user.name,shift_date:tod(),start_time:new Date().toISOString(),break_mins:0,in_zone:inZone,reset_requested:false,reset_approved:false},'agent_code,shift_date');await loadShiftRec();renderShiftEmp();}
   catch(err){alert('خطأ: '+(err?.message||''));}
 }
 function doStartBrk(){brkActive=true;brkStart=new Date();renderShiftEmp();}
@@ -739,6 +757,21 @@ async function doEndShift(){
   catch(err){alert('خطأ: '+(err?.message||''));}
 }
 
+async function doReqReset(){
+  try{
+    await dbPatch('shift_logs',{id:shiftRec.id},{reset_requested:true});
+    await loadShiftRec();renderShiftEmp();
+  }catch(err){alert('خطأ: '+(err?.message||''));}
+}
+
+async function doApproveReset(shiftId){
+  try{
+    await dbPatch('shift_logs',{id:shiftId},{reset_approved:true});
+    alert('تمت الموافقة ✅ — يمكن للموظف الآن بدء شفت جديد');
+    renderShiftSup();
+  }catch(err){alert('خطأ: '+(err?.message||''));}
+}
+
 async function renderShiftSup(){
   const tks=user.role==='region'?Object.keys(TEAMS):user.teamKey?[user.teamKey]:[];
   const showM=tks.flatMap(tk=>Object.keys(TEAMS[tk].members));
@@ -748,10 +781,33 @@ async function renderShiftSup(){
   showM.forEach(code=>{
     const m=ALL_M[code]||{name:code,color:'#6B21A8'};
     const sl=shifts.find(s=>s.agent_code===code)||null;
-    let time='—',color='#9CA3AF',status='❌';
-    if(sl&&sl.end_time){const t=sl.total_mins||0;time=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');color=t<420?'#DC2626':'#166534';status=t<420?'⚠️':'✅';}
-    else if(sl&&sl.start_time){const t=Math.floor((new Date()-new Date(sl.start_time))/60000)-(sl.break_mins||0);time=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');color='#D97706';status='⏳';}
-    h+='<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #E5E7EB;"><div style="width:8px;height:8px;border-radius:50%;background:'+m.color+';flex-shrink:0;"></div><div style="flex:1;font-size:13px;font-weight:600;">'+(m.short||m.name)+'</div><div style="font-size:14px;font-weight:700;color:'+color+';font-family:monospace;">'+time+'</div><div style="font-size:14px;">'+status+'</div></div>';
+    let time='—',color='#9CA3AF',status='❌',startT='—',endT='—',zoneInfo='';
+    if(sl&&sl.end_time){
+      const t=sl.total_mins||0;
+      time=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+      color=t<420?'#DC2626':'#166534';status=t<420?'⚠️':'✅';
+      startT=new Date(sl.start_time).toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+      endT=new Date(sl.end_time).toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+    } else if(sl&&sl.start_time){
+      const t=Math.floor((new Date()-new Date(sl.start_time))/60000)-(sl.break_mins||0);
+      time=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+      color='#D97706';status='⏳';
+      startT=new Date(sl.start_time).toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+    }
+    if(sl){zoneInfo=sl.in_zone===true?'<span style="font-size:10px;color:#166534;background:#F0FDF4;padding:2px 8px;border-radius:10px;">📍 في الزون</span>':sl.in_zone===false?'<span style="font-size:10px;color:#DC2626;background:#FEF2F2;padding:2px 8px;border-radius:10px;">📍 خارج الزون</span>':'';}
+    const resetBtn=sl&&sl.reset_requested&&!sl.reset_approved?'<button onclick="doApproveReset('+sl.id+')" style="font-size:10px;padding:3px 10px;background:#F0FDF4;border:1px solid #22C55E;border-radius:8px;color:#166534;cursor:pointer;font-family:Cairo,sans-serif;">✅ موافقة إعادة البدء</button>':'';
+    h+='<div style="border-bottom:1px solid #E5E7EB;padding:12px 0;">';
+    h+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">';
+    h+='<div style="width:8px;height:8px;border-radius:50%;background:'+m.color+';flex-shrink:0;"></div>';
+    h+='<div style="flex:1;font-size:13px;font-weight:600;">'+(m.short||m.name)+'</div>';
+    h+='<div style="font-size:14px;font-weight:700;color:'+color+';font-family:monospace;">'+time+'</div>';
+    h+='<div style="font-size:14px;">'+status+'</div>';
+    h+='</div>';
+    h+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">';
+    if(startT!=='—')h+='<span style="font-size:10px;color:#9CA3AF;">▶️ '+startT+'</span>';
+    if(endT!=='—')h+='<span style="font-size:10px;color:#9CA3AF;">⏹️ '+endT+'</span>';
+    h+=zoneInfo+resetBtn;
+    h+='</div></div>';
   });
   h+='</div></div>';
   document.getElementById('shift').innerHTML=h;
