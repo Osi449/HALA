@@ -120,6 +120,14 @@ select option{background:#3B0764;color:#fff;}
 <div id="loading"><div class="spinner"></div><div style="font-size:13px;color:#A855F7;">جاري تحميل البيانات...</div></div>
 
 <script>
+const AR_NAMES_MAP={
+  'C1-KR':'خليل','C2-SM':'سيد','C3-MQ':'محمد','C4-MN':'محمود',
+  'C5-MS':'محمد','C6-AS':'عبدالله','C7-AA':'عبدالمجيد','C8-AH':'عبدالله',
+  'C9-BJ':'برهان','C10-AR':'عبدالرحمن','C11-KS':'خالد','C12-FA':'فيصل',
+  'SUP-OS':'عثمان','SUP-AZ':'عبدالعزيز'
+};
+function getMapFirstName(){const code=mapUser?.code||'';return AR_NAMES_MAP[code]||(mapUser?.name||'').split(' ')[0];}
+
 const ZONE_CENTERS={C1:[24.720,46.660],C2:[24.620,46.730],C3:[24.580,46.780],C4:[24.560,46.810],C5:[24.500,46.750],C6:[24.640,46.700],C7:[24.680,46.720],C8:[24.700,46.740],C9:[24.650,46.680],C10:[24.600,46.660],C11:[24.580,46.700],C12:[24.700,46.800]};
 const BASE_URL=window.location.href.split('map.html')[0].split('?')[0];
 
@@ -259,8 +267,8 @@ function buildPopup(c){
     </div>
     <a class="btn-nav" href="https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}" target="_blank">🗺️ توجيه Google Maps</a>
     <div style="display:flex;gap:6px;margin-top:6px;">
-      <a class="btn-nav" style="flex:1;background:#25D366;" href="https://wa.me/966${c.cashier.startsWith('0')?c.cashier.slice(1):c.cashier}?text=${encodeURIComponent('سلام عليكم معك '+(mapUser?mapUser.name:'من هلا')+' من قسم مبيعات التمويل بشركة هلا\n\nانت مؤهل مبدئياً للتمويل اذا كنت مهتم بلغني')}" target="_blank">💬 واتساب محاسب</a>
-      <a class="btn-nav" style="flex:1;background:#6B21A8;" href="https://wa.me/966${c.owner.startsWith('0')?c.owner.slice(1):c.owner}?text=${encodeURIComponent('سلام عليكم معك '+(mapUser?mapUser.name:'من هلا')+' من قسم مبيعات التمويل بشركة هلا\n\nانت مؤهل مبدئياً للتمويل اذا كنت مهتم بلغني')}" target="_blank">💬 واتساب مدير</a>
+      <a class="btn-nav" style="flex:1;background:#25D366;" href="https://wa.me/966${c.cashier.startsWith('0')?c.cashier.slice(1):c.cashier}?text=${encodeURIComponent('سلام عليكم معك '+getMapFirstName()+' من قسم مبيعات التمويل بشركة هلا\n\nانت مؤهل مبدئياً للتمويل اذا كنت مهتم بلغني')}" target="_blank">💬 واتساب محاسب</a>
+      <a class="btn-nav" style="flex:1;background:#6B21A8;" href="https://wa.me/966${c.owner.startsWith('0')?c.owner.slice(1):c.owner}?text=${encodeURIComponent('سلام عليكم معك '+getMapFirstName()+' من قسم مبيعات التمويل بشركة هلا\n\nانت مؤهل مبدئياً للتمويل اذا كنت مهتم بلغني')}" target="_blank">💬 واتساب مدير</a>
     </div>
     <button class="btn-action" onclick="openAction('${c.id}')">⚡ Take Action</button>`;
   if(done){

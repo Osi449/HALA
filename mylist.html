@@ -122,6 +122,22 @@ if(!mlUser){
 const isSup=mlUser&&(mlUser.role==='supervisor'||mlUser.role==='region');
 const isEmp=mlUser&&mlUser.role==='employee';
 
+// الأسماء بالعربي
+const AR_NAMES={
+  'C1-KR':'خليل الرحمن','C2-SM':'سيد مسيع الله','C3-MQ':'محمد قمر الدين',
+  'C4-MN':'محمود نجيب الله','C5-MS':'محمد شير','C6-AS':'عبدالله صالح',
+  'C7-AA':'عبدالمجيد عبدالحليم','C8-AH':'عبدالله حبيب الرحمن',
+  'C9-BJ':'برهان جمال','C10-AR':'عبدالرحمن عبدالحميد',
+  'C11-KS':'خالد عيدين','C12-FA':'فيصل عبدالله',
+  'SUP-OS':'عثمان','SUP-AZ':'عبدالعزيز'
+};
+function getFirstName(){
+  const code=mlUser?.code||'';
+  const arName=AR_NAMES[code];
+  if(arName)return arName.split(' ')[0];
+  return (mlUser?.name||'').split(' ')[0];
+}
+
 // ── State ─────────────────────────────────
 let currentFilter='all';
 let currentTypeFilter='all';
@@ -194,7 +210,7 @@ function renderList(){
   list.innerHTML=filtered.map(c=>{
     const act=getAction(c.cashier);
     const cardClass='client-card'+(act==='interested'?' interested':act==='later'?' later':act==='deposited'?' deposited':'');
-    const waMsg=encodeURIComponent('سلام عليكم معك '+mlUser.name+' من قسم مبيعات التمويل بشركة هلا\n\nانت مؤهل مبدئياً للتمويل اذا كنت مهتم بلغني');
+    const waMsg=encodeURIComponent('سلام عليكم معك '+getFirstName()+' من قسم مبيعات التمويل بشركة هلا\n\nانت مؤهل مبدئياً للتمويل اذا كنت مهتم بلغني');
     return`<div class="${cardClass}" id="cc-${c.cashier}">
       <div class="cc-top">
         <div>
