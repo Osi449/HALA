@@ -739,8 +739,15 @@ function doStartShift(){
 }
 async function confirmStartShift(inZone){
   const q=document.getElementById('zone-q');if(q)q.remove();
-  try{await dbUp('shift_logs',{agent_code:user.code,agent_name:user.name,shift_date:tod(),start_time:new Date().toISOString(),break_mins:0,in_zone:inZone,reset_requested:false,reset_approved:false},'agent_code,shift_date');await loadShiftRec();renderShiftEmp();}
-  catch(err){alert('خطأ: '+(err?.message||''));}
+  try{
+    // حاول insert أولاً، لو موجود استخدم upsert
+    try{
+      await dbIns('shift_logs',{agent_code:user.code,agent_name:user.name,shift_date:tod(),start_time:new Date().toISOString(),break_mins:0,in_zone:inZone,reset_requested:false,reset_approved:false});
+    }catch(e){
+      await dbUp('shift_logs',{agent_code:user.code,agent_name:user.name,shift_date:tod(),start_time:new Date().toISOString(),break_mins:0,in_zone:inZone,reset_requested:false,reset_approved:false},'agent_code,shift_date');
+    }
+    await loadShiftRec();renderShiftEmp();
+  }catch(err){alert('خطأ: '+(err?.message||''));}
 }
 function doStartBrk(){brkActive=true;brkStart=new Date();renderShiftEmp();}
 async function doEndBrk(){
@@ -766,8 +773,15 @@ async function doReqReset(){
 
 async function doApproveReset(shiftId){
   try{
-    await dbPatch('shift_logs',{id:shiftId},{reset_approved:true});
-    alert('تمت الموافقة ✅ — يمكن للموظف الآن بدء شفت جديد');
+    // حذف سجل الشفت القديم حتى يبدأ الموظف من صفر
+    await dbDel('shift_logs',{id:shiftId});
+    // حذف إدخال أداء اليوم للموظف
+    const sl=shifts.find(s=>s.id==shiftId);
+    if(sl){
+      try{await dbDel('daily_entries',{agent_code:sl.agent_code,entry_date:tod()});}catch(e){}
+    }
+    alert('تمت الموافقة ✅ — تم تصفير بيانات الموظف وسيبدأ من جديد');
+    await loadEntries();
     renderShiftSup();
   }catch(err){alert('خطأ: '+(err?.message||''));}
 }
