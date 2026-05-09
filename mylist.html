@@ -194,7 +194,7 @@ function renderList(){
   list.innerHTML=filtered.map(c=>{
     const act=getAction(c.cashier);
     const cardClass='client-card'+(act==='interested'?' interested':act==='later'?' later':act==='deposited'?' deposited':'');
-    const waMsg=encodeURIComponent('مرحباً، أنا من هلا تمويل، أود التواصل معكم بخصوص تمويل بمبلغ '+c.amount.toLocaleString('ar-SA')+' ريال لمدة '+c.period+' شهر.');
+    const waMsg=encodeURIComponent('سلام عليكم معك '+mlUser.name+' من قسم مبيعات التمويل بشركة هلا\n\nانت مؤهل مبدئياً للتمويل اذا كنت مهتم بلغني');
     return`<div class="${cardClass}" id="cc-${c.cashier}">
       <div class="cc-top">
         <div>

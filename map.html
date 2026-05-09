@@ -259,8 +259,8 @@ function buildPopup(c){
     </div>
     <a class="btn-nav" href="https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}" target="_blank">🗺️ توجيه Google Maps</a>
     <div style="display:flex;gap:6px;margin-top:6px;">
-      <a class="btn-nav" style="flex:1;background:#25D366;" href="https://wa.me/966${c.cashier.startsWith('0')?c.cashier.slice(1):c.cashier}?text=${encodeURIComponent('مرحباً من هلا تمويل')}" target="_blank">💬 واتساب محاسب</a>
-      <a class="btn-nav" style="flex:1;background:#6B21A8;" href="https://wa.me/966${c.owner.startsWith('0')?c.owner.slice(1):c.owner}?text=${encodeURIComponent('مرحباً من هلا تمويل')}" target="_blank">💬 واتساب مدير</a>
+      <a class="btn-nav" style="flex:1;background:#25D366;" href="https://wa.me/966${c.cashier.startsWith('0')?c.cashier.slice(1):c.cashier}?text=${encodeURIComponent('سلام عليكم معك '+(mapUser?mapUser.name:'من هلا')+' من قسم مبيعات التمويل بشركة هلا\n\nانت مؤهل مبدئياً للتمويل اذا كنت مهتم بلغني')}" target="_blank">💬 واتساب محاسب</a>
+      <a class="btn-nav" style="flex:1;background:#6B21A8;" href="https://wa.me/966${c.owner.startsWith('0')?c.owner.slice(1):c.owner}?text=${encodeURIComponent('سلام عليكم معك '+(mapUser?mapUser.name:'من هلا')+' من قسم مبيعات التمويل بشركة هلا\n\nانت مؤهل مبدئياً للتمويل اذا كنت مهتم بلغني')}" target="_blank">💬 واتساب مدير</a>
     </div>
     <button class="btn-action" onclick="openAction('${c.id}')">⚡ Take Action</button>`;
   if(done){
