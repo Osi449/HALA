@@ -81,7 +81,7 @@ select option{background:#3B0764;color:#fff;}
 <script>
 const ZONE_CENTERS={C1:[24.720,46.660],C2:[24.620,46.730],C3:[24.580,46.780],C4:[24.560,46.810],C5:[24.500,46.750],C6:[24.640,46.700],C7:[24.680,46.720],C8:[24.700,46.740],C9:[24.650,46.680],C10:[24.600,46.660],C11:[24.580,46.700],C12:[24.700,46.800]};
 const CLASS_COLORS={Gold:'#D97706',Silver:'#6B7280',Bronze:'#DC2626'};
-const BASE_URL=window.location.href.replace('map.html','');
+const BASE_URL=window.location.href.split('map.html')[0].split('?')[0];
 
 const map=L.map('map').setView([24.68,46.72],11);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
@@ -148,7 +148,8 @@ function onEmpChange(){
   loading(true);
   
   // If already loaded
-  const varName='EMP_DATA_'+code.replace(/-/g,'_');
+  // Convert C1KR -> C1_KR format
+  const varName='EMP_DATA_'+code.replace(/([0-9])([A-Z])/g,'$1_$2');
   if(window[varName]){
     currentData=window[varName];
     finishLoad();
