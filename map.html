@@ -11,9 +11,8 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Cairo',sans-serif;direction:rtl;background:#1A1A2E;color:#fff;}
 #topbar{background:linear-gradient(135deg,#6B21A8,#7C3AED);padding:12px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1000;}
-.logo-text{font-size:14px;font-weight:900;color:#fff;}
-#map{height:calc(100vh - 110px);}
-#controls{background:rgba(107,33,168,0.95);padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,0.1);}
+#map{height:calc(100vh - 106px);}
+#controls{background:rgba(107,33,168,0.97);padding:10px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px solid rgba(255,255,255,0.1);}
 .ctrl-label{font-size:12px;color:rgba(255,255,255,0.7);white-space:nowrap;}
 select{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;padding:6px 12px;color:#fff;font-size:13px;font-family:'Cairo',sans-serif;cursor:pointer;}
 select option{background:#3B0764;color:#fff;}
@@ -22,28 +21,44 @@ select option{background:#3B0764;color:#fff;}
 #loading.show{display:flex;}
 .spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,0.2);border-top:4px solid #A855F7;border-radius:50%;animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.client-popup{min-width:240px;direction:rtl;font-family:'Cairo',sans-serif;}
-.popup-name{font-size:13px;font-weight:800;color:#1A1A2E;margin-bottom:8px;line-height:1.4;}
-.popup-cat{font-size:10px;color:#6B21A8;background:#F5F3FF;padding:2px 8px;border-radius:8px;display:inline-block;margin-bottom:8px;}
-.popup-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:5px 0;border-bottom:1px solid #E5E7EB;gap:6px;}
-.popup-row:last-child{border:none;padding-bottom:0;}
-.popup-label{color:#9CA3AF;flex-shrink:0;}
-.popup-val{font-weight:700;color:#1A1A2E;}
-.popup-nums{display:flex;gap:4px;align-items:center;}
-.btn-call{padding:2px 8px;border-radius:6px;font-size:10px;text-decoration:none;font-weight:700;color:#fff;white-space:nowrap;}
-.btn-copy{padding:2px 6px;background:#E5E7EB;border:none;border-radius:6px;font-size:10px;cursor:pointer;color:#374151;}
-.btn-nav{width:100%;padding:9px;background:linear-gradient(135deg,#166534,#15803D);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;text-decoration:none;display:block;text-align:center;margin-top:10px;}
-.class-badge{padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;}
-.Gold{background:#FEF3C7;color:#D97706;}
-.Silver{background:#F3F4F6;color:#6B7280;}
-.Bronze{background:#FEF2F2;color:#DC2626;}
+
+/* Action Modal */
+#action-modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;}
+#action-modal.show{display:flex;}
+.modal-box{background:#fff;border-radius:20px;padding:24px;width:100%;max-width:380px;color:#1A1A2E;}
+.modal-title{font-size:16px;font-weight:800;margin-bottom:4px;}
+.modal-sub{font-size:11px;color:#9CA3AF;margin-bottom:20px;}
+.action-q{margin-bottom:16px;}
+.action-q-label{font-size:13px;font-weight:700;margin-bottom:8px;display:block;}
+.action-btns{display:flex;gap:8px;}
+.btn-yes{flex:1;padding:10px;background:#F0FDF4;border:2px solid #E5E7EB;border-radius:10px;color:#166534;font-size:13px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;}
+.btn-yes.active{background:#166534;color:#fff;border-color:#166534;}
+.btn-no{flex:1;padding:10px;background:#FEF2F2;border:2px solid #E5E7EB;border-radius:10px;color:#DC2626;font-size:13px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;}
+.btn-no.active{background:#DC2626;color:#fff;border-color:#DC2626;}
+.btn-submit-action{width:100%;padding:13px;background:linear-gradient(135deg,#6B21A8,#7C3AED);border:none;border-radius:12px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;margin-top:16px;}
+.btn-cancel-modal{width:100%;padding:10px;background:#FAFAFA;border:1px solid #E5E7EB;border-radius:12px;color:#4B5563;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif;margin-top:8px;}
+
+/* Popup */
+.cp{min-width:230px;direction:rtl;font-family:'Cairo',sans-serif;}
+.cp-name{font-size:13px;font-weight:800;color:#1A1A2E;margin-bottom:6px;line-height:1.4;}
+.cp-cat{font-size:10px;color:#6B21A8;background:#F5F3FF;padding:2px 8px;border-radius:8px;display:inline-block;margin-bottom:8px;}
+.cp-row{display:flex;justify-content:space-between;align-items:center;font-size:11px;padding:5px 0;border-bottom:1px solid #E5E7EB;gap:4px;}
+.cp-row:last-child{border:none;padding-bottom:0;}
+.cp-lbl{color:#9CA3AF;flex-shrink:0;}
+.cp-nums{display:flex;gap:4px;align-items:center;}
+.cp-val{font-weight:700;color:#1A1A2E;font-family:monospace;}
+.btn-call{padding:2px 7px;border-radius:6px;font-size:10px;text-decoration:none;font-weight:700;color:#fff;}
+.btn-cpy{padding:2px 6px;background:#E5E7EB;border:none;border-radius:6px;font-size:10px;cursor:pointer;color:#374151;font-family:'Cairo',sans-serif;}
+.btn-nav{width:100%;padding:8px;background:linear-gradient(135deg,#166534,#15803D);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;text-decoration:none;display:block;text-align:center;margin-top:8px;}
+.btn-action{width:100%;padding:8px;background:linear-gradient(135deg,#6B21A8,#7C3AED);border:none;border-radius:8px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Cairo',sans-serif;margin-top:6px;}
+.done-badge{background:#F0FDF4;border:1px solid #22C55E;border-radius:8px;padding:6px 10px;font-size:11px;color:#166534;font-weight:700;text-align:center;margin-top:8px;}
 </style>
 </head>
 <body>
 <div id="topbar">
   <div style="display:flex;align-items:center;gap:8px;">
     <svg width="28" height="28" viewBox="0 0 60 60" fill="none"><rect width="60" height="60" rx="14" fill="rgba(255,255,255,0.15)"/><path d="M14 44V16h8v11h16V16h8v28h-8V35H22v9H14z" fill="#C4B5FD"/><circle cx="46" cy="16" r="5" fill="#22C55E"/></svg>
-    <div class="logo-text">خريطة العملاء غير المزارين 🗺️</div>
+    <div style="font-size:14px;font-weight:900;color:#fff;">خريطة العملاء 🗺️</div>
   </div>
   <div style="display:flex;align-items:center;gap:8px;">
     <span id="count-badge">اختر موظف</span>
@@ -51,131 +66,225 @@ select option{background:#3B0764;color:#fff;}
   </div>
 </div>
 <div id="controls">
-  <span class="ctrl-label">👤 الموظف:</span>
+  <span class="ctrl-label">👤</span>
   <select id="emp-select" onchange="onEmpChange()">
     <option value="">-- اختر الموظف --</option>
-    <option value="C1KR">C1-KR — Khalilul Rahman (C1)</option>
-    <option value="C2SM">C2-SM — Syed Masee Ullah (C2)</option>
-    <option value="C3MQ">C3-MQ — Mohammed Qemaruddin (C3)</option>
-    <option value="C4MN">C4-MN — Mahmood Najebullah (C4)</option>
-    <option value="C5MS">C5-MS — Mohammed Sheer (C5)</option>
-    <option value="C6AS">C6-AS — Abdullah Saleh (C6)</option>
-    <option value="C7AA">C7-AA — Abdulmajeed (C7)</option>
-    <option value="C8AH">C8-AH — Abdullah Habiburhman (C8)</option>
-    <option value="C9BJ">C9-BJ — Burhan Jamal (C9)</option>
-    <option value="C10AR">C10-AR — Abdulrahman (C10)</option>
-    <option value="C11KS">C11-KS — Khaled Aydin (C11)</option>
-    <option value="C12FA">C12-FA — Faisal Khan (C12)</option>
+    <option value="C1-KR">C1-KR — Khalilul Rahman</option>
+    <option value="C2-SM">C2-SM — Syed Masee Ullah</option>
+    <option value="C3-MQ">C3-MQ — Mohammed Qemaruddin</option>
+    <option value="C4-MN">C4-MN — Mahmood Najebullah</option>
+    <option value="C5-MS">C5-MS — Mohammed Sheer</option>
+    <option value="C6-AS">C6-AS — Abdullah Saleh</option>
+    <option value="C7-AA">C7-AA — Abdulmajeed</option>
+    <option value="C8-AH">C8-AH — Abdullah Habiburhman</option>
+    <option value="C9-BJ">C9-BJ — Burhan Jamal</option>
+    <option value="C10-AR">C10-AR — Abdulrahman</option>
+    <option value="C11-KS">C11-KS — Khaled Aydin</option>
+    <option value="C12-FA">C12-FA — Faisal Khan</option>
   </select>
-  <span class="ctrl-label">🏅 التصنيف:</span>
-  <select id="cls-filter" onchange="applyFilter()">
-    <option value="all">الكل</option>
-    <option value="Gold">Gold 🥇</option>
-    <option value="Silver">Silver 🥈</option>
-    <option value="Bronze">Bronze 🥉</option>
-  </select>
+  <span class="ctrl-label" style="margin-right:4px;">✅ منجز: <span id="done-count" style="color:#86EFAC;font-weight:700;">0</span></span>
 </div>
 <div id="map"></div>
-<div id="loading"><div class="spinner"></div><div style="font-size:13px;color:#A855F7;">جاري تحميل بيانات الزون...</div></div>
+
+<!-- Action Modal -->
+<div id="action-modal">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-client-name">اسم العميل</div>
+    <div class="modal-sub" id="modal-client-id"></div>
+    <div class="action-q">
+      <span class="action-q-label">📞 هل تم التواصل مع العميل؟</span>
+      <div class="action-btns">
+        <button class="btn-yes" id="q1-yes" onclick="setQ(1,true)">✅ نعم</button>
+        <button class="btn-no" id="q1-no" onclick="setQ(1,false)">❌ لا</button>
+      </div>
+    </div>
+    <div class="action-q">
+      <span class="action-q-label">💚 هل العميل مهتم؟</span>
+      <div class="action-btns">
+        <button class="btn-yes" id="q2-yes" onclick="setQ(2,true)">✅ نعم</button>
+        <button class="btn-no" id="q2-no" onclick="setQ(2,false)">❌ لا</button>
+      </div>
+    </div>
+    <div class="action-q">
+      <span class="action-q-label">💬 هل تم إرسال رسالة واتساب؟</span>
+      <div class="action-btns">
+        <button class="btn-yes" id="q3-yes" onclick="setQ(3,true)">✅ نعم</button>
+        <button class="btn-no" id="q3-no" onclick="setQ(3,false)">❌ لا</button>
+      </div>
+    </div>
+    <button class="btn-submit-action" onclick="submitAction()">حفظ الإجراء ✓</button>
+    <button class="btn-cancel-modal" onclick="closeModal()">إلغاء</button>
+  </div>
+</div>
+
+<div id="loading"><div class="spinner"></div><div style="font-size:13px;color:#A855F7;">جاري تحميل البيانات...</div></div>
 
 <script>
 const ZONE_CENTERS={C1:[24.720,46.660],C2:[24.620,46.730],C3:[24.580,46.780],C4:[24.560,46.810],C5:[24.500,46.750],C6:[24.640,46.700],C7:[24.680,46.720],C8:[24.700,46.740],C9:[24.650,46.680],C10:[24.600,46.660],C11:[24.580,46.700],C12:[24.700,46.800]};
-const CLASS_COLORS={Gold:'#D97706',Silver:'#6B7280',Bronze:'#DC2626'};
 const BASE_URL=window.location.href.split('map.html')[0].split('?')[0];
 
 const map=L.map('map').setView([24.68,46.72],11);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:19}).addTo(map);
-let markers=L.layerGroup().addTo(map);
+let markers={};
+let layerGroup=L.layerGroup().addTo(map);
 let currentData=null;
-let loadedScripts={};
+let currentEmp='';
+let actions={}; // {clientId: {q1,q2,q3}}
+let modalClientId='';
+let answers={1:null,2:null,3:null};
+
+// Load actions from localStorage
+function loadActions(emp){
+  try{const a=localStorage.getItem('map_actions_'+emp);return a?JSON.parse(a):{};}catch(e){return{};}
+}
+function saveActions(emp){
+  try{localStorage.setItem('map_actions_'+emp,JSON.stringify(actions));}catch(e){}
+}
+function isDone(id){
+  const a=actions[id];
+  return a&&a.q1!==null&&a.q2!==null&&a.q3!==null;
+}
+function updateDoneCount(){
+  if(!currentData)return;
+  const done=currentData.clients.filter(c=>isDone(c.id)).length;
+  document.getElementById('done-count').textContent=done;
+}
 
 function loading(show){document.getElementById('loading').className=show?'show':'';}
 
-function makeIcon(cls){
-  const c=CLASS_COLORS[cls]||'#6B7280';
-  return L.divIcon({html:`<svg xmlns="http://www.w3.org/2000/svg" width="22" height="30" viewBox="0 0 22 30"><path d="M11 0C4.9 0 0 4.9 0 11c0 8.3 11 19 11 19S22 19.3 22 11C22 4.9 17.1 0 11 0z" fill="${c}"/><circle cx="11" cy="11" r="5" fill="white"/></svg>`,className:'',iconSize:[22,30],iconAnchor:[11,30],popupAnchor:[0,-30]});
+function makeIcon(id,color){
+  const done=isDone(id);
+  const c=done?'#22C55E':color||'#6B21A8';
+  const inner=done?'<text x="11" y="15" text-anchor="middle" font-size="9" fill="white">✓</text>':'';
+  return L.divIcon({
+    html:`<svg xmlns="http://www.w3.org/2000/svg" width="22" height="30" viewBox="0 0 22 30">
+      <path d="M11 0C4.9 0 0 4.9 0 11c0 8.3 11 19 11 19S22 19.3 22 11C22 4.9 17.1 0 11 0z" fill="${c}" stroke="${done?'#166534':'rgba(0,0,0,0.2)'}" stroke-width="1"/>
+      <circle cx="11" cy="11" r="5" fill="white"/>${inner}
+    </svg>`,
+    className:'',iconSize:[22,30],iconAnchor:[11,30],popupAnchor:[0,-30]
+  });
 }
 
 function copyNum(n){
   navigator.clipboard.writeText(n).then(()=>alert('تم نسخ: '+n)).catch(()=>prompt('انسخ الرقم:',n));
 }
 
-function renderMarkers(clients){
-  markers.clearLayers();
-  const toShow=clients.slice(0,2000);
-  toShow.forEach(c=>{
-    const m=L.marker([c.lat,c.lng],{icon:makeIcon(c.class)});
-    const popup=`<div class="client-popup">
-      <div class="popup-name">${c.name}</div>
-      <div><span class="class-badge ${c.class}">${c.class}</span> <span class="popup-cat">${c.category}</span></div>
-      <div class="popup-row"><span class="popup-label">Cashier ID</span><span class="popup-val">${c.id}</span></div>
-      <div class="popup-row"><span class="popup-label">الزون</span><span class="popup-val">${c.zone}</span></div>
-      <div class="popup-row">
-        <span class="popup-label">📞 المحاسب</span>
-        <span class="popup-nums">
-          <span class="popup-val">${c.cashier}</span>
-          <a href="tel:${c.cashier}" class="btn-call" style="background:#166534;">📞</a>
-          <button class="btn-copy" onclick="copyNum('${c.cashier}')">نسخ</button>
-        </span>
-      </div>
-      <div class="popup-row">
-        <span class="popup-label">👔 المدير</span>
-        <span class="popup-nums">
-          <span class="popup-val">${c.owner}</span>
-          <a href="tel:${c.owner}" class="btn-call" style="background:#6B21A8;">📞</a>
-          <button class="btn-copy" onclick="copyNum('${c.owner}')">نسخ</button>
-        </span>
-      </div>
-      <a class="btn-nav" href="https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}" target="_blank">🗺️ توجيه Google Maps</a>
-    </div>`;
-    m.bindPopup(popup,{maxWidth:280,minWidth:240});
-    markers.addLayer(m);
+function openAction(id){
+  const c=currentData&&currentData.clients.find(x=>x.id===id);
+  if(!c)return;
+  modalClientId=id;
+  answers={1:null,2:null,3:null};
+  // Load existing answers
+  if(actions[id]){answers=Object.assign({1:null,2:null,3:null},actions[id]);}
+  document.getElementById('modal-client-name').textContent=c.name;
+  document.getElementById('modal-client-id').textContent='ID: '+c.id+' | TID: '+c.tid;
+  // Reset buttons
+  [1,2,3].forEach(q=>{
+    document.getElementById('q'+q+'-yes').className='btn-yes'+(answers[q]===true?' active':'');
+    document.getElementById('q'+q+'-no').className='btn-no'+(answers[q]===false?' active':'');
   });
-  const total=clients.length;
-  document.getElementById('count-badge').textContent=total.toLocaleString('ar-SA')+' عميل'+(total>2000?' (يُعرض 2000)':'');
+  document.getElementById('action-modal').className='show';
 }
 
-function applyFilter(){
+function closeModal(){document.getElementById('action-modal').className='';}
+
+function setQ(q,val){
+  answers[q]=val;
+  document.getElementById('q'+q+'-yes').className='btn-yes'+(val===true?' active':'');
+  document.getElementById('q'+q+'-no').className='btn-no'+(val===false?' active':'');
+}
+
+function submitAction(){
+  if(answers[1]===null||answers[2]===null||answers[3]===null){alert('يرجى الإجابة على جميع الأسئلة');return;}
+  actions[modalClientId]={q1:answers[1],q2:answers[2],q3:answers[3]};
+  saveActions(currentEmp);
+  closeModal();
+  // Update marker color
+  updateMarker(modalClientId);
+  updateDoneCount();
+  // Refresh popup if open
+  map.closePopup();
+}
+
+function updateMarker(id){
+  if(!markers[id])return;
+  const c=currentData.clients.find(x=>x.id===id);
+  if(!c)return;
+  markers[id].setIcon(makeIcon(id,'#6B21A8'));
+}
+
+function buildPopup(c){
+  const done=isDone(c.id);
+  const a=actions[c.id]||{};
+  let h=`<div class="cp">
+    <div class="cp-name">${c.name}</div>
+    <div class="cp-cat">${c.category}</div>
+    <div class="cp-row"><span class="cp-lbl">Cashier ID</span><span class="cp-val">${c.id}</span></div>
+    <div class="cp-row"><span class="cp-lbl">TID</span><span class="cp-val">${c.tid||'—'}</span></div>
+    <div class="cp-row"><span class="cp-lbl">الزون</span><span class="cp-val">${c.zone}</span></div>
+    <div class="cp-row">
+      <span class="cp-lbl">📞 محاسب</span>
+      <span class="cp-nums">
+        <span class="cp-val">${c.cashier}</span>
+        <a href="tel:${c.cashier}" class="btn-call" style="background:#166534;">📞</a>
+        <button class="btn-cpy" onclick="copyNum('${c.cashier}')">نسخ</button>
+      </span>
+    </div>
+    <div class="cp-row">
+      <span class="cp-lbl">👔 مدير</span>
+      <span class="cp-nums">
+        <span class="cp-val">${c.owner}</span>
+        <a href="tel:${c.owner}" class="btn-call" style="background:#6B21A8;">📞</a>
+        <button class="btn-cpy" onclick="copyNum('${c.owner}')">نسخ</button>
+      </span>
+    </div>
+    <a class="btn-nav" href="https://www.google.com/maps/dir/?api=1&destination=${c.lat},${c.lng}" target="_blank">🗺️ توجيه Google Maps</a>
+    <button class="btn-action" onclick="openAction('${c.id}')">⚡ Take Action</button>`;
+  if(done){
+    h+=`<div class="done-badge">✅ تم الإجراء — ${a.q1?'تواصل ✓':'لا تواصل'} · ${a.q2?'مهتم ✓':'غير مهتم'} · ${a.q3?'واتساب ✓':'لا واتساب'}</div>`;
+  }
+  h+='</div>';
+  return h;
+}
+
+function renderMarkers(){
   if(!currentData)return;
-  const cls=document.getElementById('cls-filter').value;
-  const filtered=cls==='all'?currentData.clients:currentData.clients.filter(c=>c.class===cls);
-  renderMarkers(filtered);
+  layerGroup.clearLayers();
+  markers={};
+  currentData.clients.forEach(c=>{
+    const m=L.marker([c.lat,c.lng],{icon:makeIcon(c.id,'#6B21A8')});
+    m.bindPopup(()=>buildPopup(c),{maxWidth:280,minWidth:240});
+    layerGroup.addLayer(m);
+    markers[c.id]=m;
+  });
+  document.getElementById('count-badge').textContent=currentData.clients.length.toLocaleString('ar-SA')+' عميل';
+  updateDoneCount();
 }
 
 function onEmpChange(){
-  const code=document.getElementById('emp-select').value;
-  if(!code)return;
+  const emp=document.getElementById('emp-select').value;
+  if(!emp)return;
+  currentEmp=emp;
+  actions=loadActions(emp);
   loading(true);
-  
-  // If already loaded
-  // Convert C1KR -> C1_KR format
-  const varName='EMP_DATA_'+code.replace(/([0-9])([A-Z])/g,'$1_$2');
+  const varName='EMP_DATA_'+emp.replace(/-/g,'_');
   if(window[varName]){
     currentData=window[varName];
-    finishLoad();
-    return;
+    finishLoad();return;
   }
-  
-  // Load script dynamically
+  const fileCode=emp.replace('-','');
   const script=document.createElement('script');
-  script.src=BASE_URL+'clients_'+code+'.js';
-  script.onload=()=>{
-    currentData=window[varName];
-    finishLoad();
-  };
-  script.onerror=()=>{
-    loading(false);
-    alert('خطأ في تحميل البيانات — تأكد أن ملف clients_'+code+'.js موجود على GitHub');
-  };
+  script.src=BASE_URL+'clients_'+fileCode+'.js';
+  script.onload=()=>{currentData=window[varName];finishLoad();};
+  script.onerror=()=>{loading(false);alert('خطأ في تحميل البيانات');};
   document.head.appendChild(script);
 }
 
 function finishLoad(){
   if(!currentData){loading(false);return;}
-  const zone=currentData.zone;
-  const center=ZONE_CENTERS[zone]||[24.68,46.72];
-  map.setView(center,12);
-  applyFilter();
+  const center=ZONE_CENTERS[currentData.zone]||[24.68,46.72];
+  map.setView(center,13);
+  renderMarkers();
   loading(false);
 }
 </script>
