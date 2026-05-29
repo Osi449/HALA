@@ -225,11 +225,10 @@ function renderList(){
   document.getElementById('s-later').textContent=all.filter(c=>getAction(c.cashier)==='later').length;
   document.getElementById('s-dep').textContent=all.filter(c=>getAction(c.cashier)==='deposited').length;
 
-  const filtered = finalFiltered;
   const list=document.getElementById('clients-list');
-  if(!filtered.length){list.innerHTML='<div style="text-align:center;padding:40px;background:#fff;border-radius:14px;"><div style="font-size:36px;margin-bottom:8px;">📭</div><div style="color:#9CA3AF;">لا يوجد عملاء</div></div>';return;}
+  if(!finalFiltered.length){list.innerHTML='<div style="text-align:center;padding:40px;background:#fff;border-radius:14px;"><div style="font-size:36px;margin-bottom:8px;">📭</div><div style="color:#9CA3AF;">لا يوجد عملاء</div></div>';return;}
 
-  list.innerHTML=filtered.map(c=>{
+  list.innerHTML=finalFiltered.map(c=>{
     const act=getAction(c.cashier);
     const cardClass='client-card'+(act==='interested'?' interested':act==='later'?' later':act==='deposited'?' deposited':'');
     const waMsg=encodeURIComponent('سلام عليكم معك '+getFirstName()+' من قسم مبيعات التمويل بشركة هلا\n\nانت مؤهل مبدئياً للتمويل اذا كنت مهتم بلغني');
