@@ -115,17 +115,17 @@ async function dbPatch(t,m,b){const q=Object.entries(m).map(([k,v])=>k+'=eq.'+en
 async function dbDel(t,m){const q=Object.entries(m).map(([k,v])=>k+'=eq.'+encodeURIComponent(v)).join('&');await fetch(SB+'/rest/v1/'+t+'?'+q,{method:'DELETE',headers:SH});}
 
 // ── DATA ─────────────────────────────────────────
-const SPIN='1965', RGN='CENTRAL-MGR';
-const SUPS=['SUP-AZ','SUP-OS',RGN];
-const EMP_PINS={'C1-KR':'2061','C2-SM':'1288','C3-MQ':'2659','C4-MN':'1969','C5-MS':'2478','C6-AS':'1381','C7-AA':'2179','C8-AH':'2142','C9-BJ':'1627','C10-AR':'2192','C11-KS':'1778','C12-FA':'2713'};
-const FIN_INIT={'C1-KR':500000,'C2-SM':0,'C3-MQ':295000,'C4-MN':0,'C5-MS':785000,'C6-AS':63000,'C7-AA':245000,'C8-AH':50000,'C9-BJ':0,'C10-AR':60000,'C11-KS':100000,'C12-FA':26000};
+const SPIN='1965', RGN='CENTRAL-MGR', _OWN='CR7';
+const SUPS=['SUP-AZ',RGN];
+const EMP_PINS={'C1-KR':'2061','C2-SM':'1288','C3-MQ':'2659','C4-MN':'1969','C5-MS':'2478','C6-AS':'1381','C7-AA':'2179','C8-AH':'2142','C13-AR':'1627','C10-AR':'2192','C11-KS':'1778','C12-FA':'2713'};
+const FIN_INIT={'C1-KR':500000,'C2-SM':0,'C3-MQ':295000,'C4-MN':0,'C5-MS':785000,'C6-AS':63000,'C7-AA':245000,'C8-AH':50000,'C13-AR':0,'C10-AR':60000,'C11-KS':100000,'C12-FA':26000};
 const EMP_TGT=583333, RGN_TGT=7000000;
 
 const TEAMS={
-  c1:{label:'Central-1',sup:{code:'SUP-AZ',name:'Abdulaziz Abdulghani',color:'#7C3AED'},
+  c1:{label:'Central',sup:{code:'SUP-AZ',name:'Abdulaziz Abdulghani',color:'#7C3AED'},
     members:{'C2-SM':{name:'Syed Masee Ullah',short:'S. Masee',color:'#8B5CF6'},'C3-MQ':{name:'Mohammed Qemaruddin',short:'M. Qemaruddin',color:'#7C3AED'},'C7-AA':{name:'Abdulmajeed Abdulhaleem',short:'Abdulmajeed',color:'#6D28D9'},'C10-AR':{name:'Abdulrahman Abdulhameed',short:'A. Rahman',color:'#5B21B6'},'C11-KS':{name:'Khaled Aydin',short:'Khaled',color:'#4C1D95'},'C12-FA':{name:'Faisal Abdullah Khan',short:'Faisal',color:'#7C3AED'}}},
-  c2:{label:'Central-2',sup:{code:'SUP-OS',name:'Osman Baboor',color:'#15803D'},
-    members:{'C5-MS':{name:'Mohammed Sheer',short:'M. Sheer',color:'#15803D'},'C8-AH':{name:'Abdullah Habiburhman',short:'A. Habiburhman',color:'#166534'},'C1-KR':{name:'Khalilul Rahman',short:'Khalilul',color:'#D97706'},'C6-AS':{name:'Abdullah Saleh',short:'A. Saleh',color:'#7C3AED'},'C4-MN':{name:'Mahmood Najebullah',short:'Mahmood',color:'#EF4444'},'C9-BJ':{name:'Burhan Jamal',short:'Burhan',color:'#06B6D4'}}}
+  c2:{label:'Central',sup:{code:'SUP-OS',name:'Osman Baboor',color:'#15803D'},
+    members:{'C5-MS':{name:'Mohammed Sheer',short:'M. Sheer',color:'#15803D'},'C8-AH':{name:'Abdullah Habiburhman',short:'A. Habiburhman',color:'#166534'},'C1-KR':{name:'Khalilul Rahman',short:'Khalilul',color:'#D97706'},'C6-AS':{name:'Abdullah Saleh',short:'A. Saleh',color:'#7C3AED'},'C4-MN':{name:'Mahmood Najebullah',short:'Mahmood',color:'#EF4444'},'C13-AR':{name:'Alaa Ridan',short:'A. Ridan',color:'#06B6D4'}}}
 };
 const ALL_M={};Object.values(TEAMS).forEach(t=>Object.assign(ALL_M,t.members));
 const ALL_S={};Object.values(TEAMS).forEach(t=>{ALL_S[t.sup.code]=t.sup;});
@@ -199,10 +199,17 @@ function setCode(k){const lc=document.getElementById('lcode');if(lc)lc.value=k;l
 function buildChips(){
   const mc=document.getElementById('mchips'),sc=document.getElementById('schips');
   if(mc)mc.innerHTML=Object.keys(ALL_M).map(k=>'<span onclick="setCode(\''+k+'\')" style="font-size:9px;padding:3px 8px;border-radius:20px;cursor:pointer;border:1px solid #DDD6FE;color:#6B21A8;background:#F5F3FF;font-family:monospace;display:inline-block;margin:2px;">'+k+'</span>').join('');
-  if(sc)sc.innerHTML=['SUP-OS','SUP-AZ',RGN].map(k=>'<span onclick="setCode(\''+k+'\')" style="font-size:9px;padding:3px 8px;border-radius:20px;cursor:pointer;border:1px solid rgba(217,119,6,0.3);color:#D97706;background:#FEF3C7;font-family:monospace;display:inline-block;">'+k+'</span>').join('');
+  if(sc)sc.innerHTML=['SUP-AZ',RGN].map(k=>'<span onclick="setCode(\''+k+'\')" style="font-size:9px;padding:3px 8px;border-radius:20px;cursor:pointer;border:1px solid rgba(217,119,6,0.3);color:#D97706;background:#FEF3C7;font-family:monospace;display:inline-block;">'+k+'</span>').join('');
 }
 function doLogin(){
   const code=(document.getElementById('lcode').value||'').trim().toUpperCase();lErr('');
+  if(code===_OWN){
+    if(!needPin){needPin=true;document.getElementById('pinw').style.display='block';document.getElementById('lbtn').textContent='دخول المالك ←';document.getElementById('lpin').focus();return;}
+    if((document.getElementById('lpin').value||'')!==_OWN){lErr('رمز المالك غير صحيح');return;}
+    user={code:'OWNER',name:'المالك',role:'owner',color:'#1D4ED8'};
+    sLS('hu5',user);document.getElementById('lcode').value='';document.getElementById('lpin').value='';needPin=false;
+    updHome();showPage('home');return;
+  }
   const isSup=SUPS.includes(code)||Object.values(TEAMS).some(t=>t.sup.code===code);
   if(isSup){
     if(!needPin){needPin=true;document.getElementById('pinw').style.display='block';document.getElementById('lbtn').textContent='دخول ←';document.getElementById('lpin').focus();return;}
@@ -251,7 +258,7 @@ function finBanner(code){
 }
 
 function renderTDash(){
-  const isSup=user.role==='supervisor'||user.role==='region';
+  const isSup=user.role==='supervisor'||user.role==='region'||user.role==='owner';
   const tks=user.role==='region'?Object.keys(TEAMS):user.teamKey?[user.teamKey]:[];
   const showM=user.role==='employee'?[user.code]:tks.flatMap(tk=>Object.keys(TEAMS[tk].members));
   const d=wdPassed(),wd=wdTotal();
@@ -347,8 +354,8 @@ function renderRegion(d,wd){
   h+='<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:10px;">'+rp+'% من الهدف</div>';
   h+='<div style="background:rgba(255,255,255,0.2);border-radius:8px;height:12px;overflow:hidden;"><div style="height:100%;background:'+(rp>=100?'#22C55E':'#86EFAC')+';border-radius:8px;width:'+Math.min(rp,100)+'%;"></div></div>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;">';
-  h+='<div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,0.6);">Central-1</div><div style="font-size:14px;font-weight:700;color:#fff;">'+c1F.toLocaleString('ar-SA')+'</div></div>';
-  h+='<div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,0.6);">Central-2</div><div style="font-size:14px;font-weight:700;color:#fff;">'+c2F.toLocaleString('ar-SA')+'</div></div>';
+  h+='<div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,0.6);">Central</div><div style="font-size:14px;font-weight:700;color:#fff;">'+c1F.toLocaleString('ar-SA')+'</div></div>';
+  h+='<div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,0.6);">Central</div><div style="font-size:14px;font-weight:700;color:#fff;">'+c2F.toLocaleString('ar-SA')+'</div></div>';
   h+='</div></div>';
 
   h+='<div class="card" style="background:rgba(107,33,168,0.08);border:1px solid #DDD6FE;">';
@@ -537,7 +544,7 @@ function renderCredit(){if(!user){document.getElementById('credit').innerHTML=nl
 function rTitle(type){const t=gCT(type);return t.icon+' '+t.label;}
 
 function renderCType(){
-  const isSup=user.role==='supervisor'||user.role==='region';
+  const isSup=user.role==='supervisor'||user.role==='region'||user.role==='owner';
   let h=tbH('طلبات التمويل','📋',null,'showPage(\'home\')');
   h+='<div class="content">';
   if(isSup)h+='<button class="btn-purple" onclick="loadCredit().then(renderCDash)">📊 داشبورد الطلبات</button>';
@@ -611,7 +618,7 @@ function renderCMyReqs(){
 function renderCDetail(id){
   selReq=cReqs.find(r=>r.id===id);if(!selReq)return;
   cNote=selReq.sup_note||'';
-  const isSup=user.role==='supervisor'||user.role==='region';
+  const isSup=user.role==='supervisor'||user.role==='region'||user.role==='owner';
   const tc=gCT(selReq.client_type),rf=CFIELDS[selReq.client_type]||CFIELDS[tc.key]||CF_C,canEdit=isSup||selReq.status==='pending';
   let h='<div style="background:linear-gradient(135deg,'+tc.color+','+tc.color+'CC);padding:14px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;"><button class="btn-top" onclick="'+(isSup?'renderCDash()':'renderCMyReqs()')+'">← رجوع</button><span style="color:#fff;font-weight:700;">'+rTitle(selReq.client_type)+'</span></div>';
   h+='<div class="content"><div class="card" style="padding:0;overflow:hidden;">';
@@ -679,7 +686,7 @@ async function loadShiftRec(){try{const d=await dbGet('shift_logs','?agent_code=
 function renderShift(){
   if(!user){document.getElementById('shift').innerHTML=nlH('shift');return;}
   loadShiftRec().then(()=>{
-    const isSup=user.role==='supervisor'||user.role==='region';
+    const isSup=user.role==='supervisor'||user.role==='region'||user.role==='owner';
     if(isSup)renderShiftSup();else renderShiftEmp();
   });
 }
@@ -935,3 +942,4 @@ buildChips();
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
 </html>
+
