@@ -77,12 +77,19 @@ select option{background:#3B0764;color:#fff;}
     <option value="C6-AS">C6-AS — Abdullah Saleh</option>
     <option value="C7-AA">C7-AA — Abdulmajeed</option>
     <option value="C8-AH">C8-AH — Abdullah Habiburhman</option>
-    <option value="C9-BJ">C9-BJ — Burhan Jamal</option>
+    <option value="C13-AR">C13-AR — Alaa Ridan</option>
     <option value="C10-AR">C10-AR — Abdulrahman</option>
     <option value="C11-KS">C11-KS — Khaled Aydin</option>
     <option value="C12-FA">C12-FA — Faisal Khan</option>
   </select>
   <span class="ctrl-label" style="margin-right:4px;">✅ منجز: <span id="done-count" style="color:#86EFAC;font-weight:700;">0</span></span>
+  <div style="display:flex;gap:6px;align-items:center;margin-right:auto;">
+    <input id="map-entity-search" type="text" placeholder="بحث Entity ID / اسم..." 
+      style="background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.3);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;font-family:monospace;color:#fff;width:180px;outline:none;direction:ltr;"
+      oninput="mapEntitySearch(this.value)" onkeydown="if(event.key==='Escape'){this.value='';mapEntitySearch('');}">
+    <button onclick="clearMapSearch()" style="padding:6px 10px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:8px;color:#fff;font-size:11px;cursor:pointer;">✕</button>
+    <span id="map-search-result" style="font-size:11px;color:#86EFAC;min-width:60px;"></span>
+  </div>
 </div>
 <div id="map"></div>
 
@@ -167,6 +174,59 @@ function loadActions(emp){
 function saveActions(emp){
   try{localStorage.setItem('map_actions_'+emp,JSON.stringify(actions));}catch(e){}
 }
+
+// ── Entity Search (Map) ───────────────────
+let mapSearchTerm = '';
+let allMapMarkers = [];
+
+function mapEntitySearch(val) {
+  mapSearchTerm = val.trim().toUpperCase();
+  applyMapSearch();
+}
+
+function clearMapSearch() {
+  document.getElementById('map-entity-search').value = '';
+  mapSearchTerm = '';
+  document.getElementById('map-search-result').textContent = '';
+  applyMapSearch();
+}
+
+function applyMapSearch() {
+  if (!currentData || !currentData.clients) return;
+  const res = document.getElementById('map-search-result');
+  
+  if (!mapSearchTerm) {
+    // Show all markers
+    if (window._allMarkers) {
+      window._allMarkers.forEach(m => {
+        if(!layerGroup.hasLayer(m.marker))layerGroup.addLayer(m.marker);
+      });
+    }
+    res.textContent = '';
+    return;
+  }
+  
+  let found = 0;
+  if (window._allMarkers) {
+    window._allMarkers.forEach(m => {
+      const c = m.client;
+      const match = (c.id||'').toUpperCase().includes(mapSearchTerm) ||
+                    (c.name||'').toUpperCase().includes(mapSearchTerm) ||
+                    (c.cashier||'').toUpperCase().includes(mapSearchTerm) ||
+                    (c.tid||'').toUpperCase().includes(mapSearchTerm);
+      if (match) {
+        if(!layerGroup.hasLayer(m.marker))layerGroup.addLayer(m.marker);
+        found++;
+        if (found === 1) map.setView(m.marker.getLatLng(), 15);
+      } else {
+        if(layerGroup.hasLayer(m.marker))layerGroup.removeLayer(m.marker);
+      }
+    });
+  }
+  res.textContent = found > 0 ? `${found} نتيجة` : 'لا نتائج';
+  res.style.color = found > 0 ? '#86EFAC' : '#FCA5A5';
+}
+
 function isDone(id){
   const a=actions[id];
   return a&&a.q1!==null&&a.q2!==null&&a.q3!==null;
@@ -282,11 +342,18 @@ function renderMarkers(){
   if(!currentData)return;
   layerGroup.clearLayers();
   markers={};
+  window._allMarkers=[];
+  mapSearchTerm='';
+  const srchInput=document.getElementById('map-entity-search');
+  if(srchInput)srchInput.value='';
+  const srchRes=document.getElementById('map-search-result');
+  if(srchRes)srchRes.textContent='';
   currentData.clients.forEach(c=>{
     const m=L.marker([c.lat,c.lng],{icon:makeIcon(c.id,'#6B21A8')});
     m.bindPopup(()=>buildPopup(c),{maxWidth:280,minWidth:240});
     layerGroup.addLayer(m);
     markers[c.id]=m;
+    window._allMarkers.push({marker:m,client:c});
   });
   document.getElementById('count-badge').textContent=currentData.clients.length.toLocaleString('ar-SA')+' عميل';
   updateDoneCount();
@@ -369,3 +436,4 @@ window.addEventListener('load', initMapAccess);
 </script>
 </body>
 </html>
+
