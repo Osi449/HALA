@@ -287,7 +287,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
     <div class="stat-item"><span class="stat-num" data-target="6">0</span><span class="stat-lbl">أنواع طلبات التمويل</span></div>
   </div>
 
-  <section class="feats" id="features">
+  <section class="feats" id="features" style="display:none;">
     <svg class="feats-bg-svg" viewBox="0 0 500 150" fill="none">
       <rect x="5" y="10" width="14" height="130" rx="7" fill="#1a9e5c"/>
       <rect x="5" y="62" width="56" height="14" rx="7" fill="#1a9e5c"/>
@@ -318,7 +318,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
     </div>
   </section>
 
-  <section class="tracker" id="tracker">
+  <section class="tracker" id="tracker" style="display:none;">
     <div class="tracker-inner">
       <div>
         <div class="section-label">متابعة الأداء</div>
@@ -350,7 +350,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
     </div>
   </section>
 
-  <section class="mylist" id="mylist">
+  <section class="mylist" id="mylist" style="display:none;">
     <div class="mylist-inner">
       <div class="mylist-header">
         <div class="section-label">قائمة العملاء</div>
@@ -370,7 +370,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
     </div>
   </section>
 
-  <footer class="footer">
+  <footer class="footer" id="main-footer" style="display:none;">
     <div>
       <div class="footer-hala">
         <span style="font-family:'Arial Black','Helvetica Neue',sans-serif;font-weight:900;font-size:20px;color:#fff;letter-spacing:2px;line-height:1;">HALA</span>
@@ -511,6 +511,16 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
 </div>
 
 <script>
+function showSection(id){
+  const el=document.getElementById(id);
+  const footer=document.getElementById('main-footer');
+  if(el){
+    el.style.display='block';
+    el.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  // Show footer when any section is shown
+  if(footer)footer.style.display='flex';
+}
 function doLogin(){
   const code=document.getElementById('code-inp').value.trim().toUpperCase()||'موظف';
   const names={'C1-KR':'خليل الرحمن','C2-SM':'سيد مسيع الله','C5-MS':'محمد شير','W1-JH':'جابر محمد','SUP-AZ':'عبدالعزيز','WEST-MGR':'عثمان بابور'};
