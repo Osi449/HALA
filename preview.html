@@ -248,17 +248,21 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
 <div class="page active" id="page-home">
   <nav class="nav">
     <div class="logo-svg">
-      <svg viewBox="0 0 140 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="2" y="4" width="7" height="32" rx="3.5" fill="#1a9e5c"/>
-        <rect x="2" y="17" width="26" height="7" rx="3.5" fill="#1a9e5c"/>
-        <rect x="21" y="4" width="7" height="32" rx="3.5" fill="#1a9e5c"/>
-        <path d="M38 36 L53 4 L68 36" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <line x1="44" y1="24" x2="62" y2="24" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round"/>
-        <rect x="76" y="4" width="7" height="32" rx="3.5" fill="#1a9e5c"/>
-        <rect x="76" y="29" width="26" height="7" rx="3.5" fill="#1a9e5c"/>
-        <path d="M112 36 L127 4 L142 36" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-        <line x1="118" y1="24" x2="136" y2="24" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round"/>
-      </svg>
+      <svg viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:26px;">
+  <!-- H -->
+  <rect x="1" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
+  <rect x="1" y="11" width="17" height="5.5" rx="2.5" fill="#1a9e5c"/>
+  <rect x="13" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
+  <!-- A -->
+  <path d="M25 26 L33 2 L41 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="28" y1="17" x2="38" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
+  <!-- L -->
+  <rect x="47" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
+  <rect x="47" y="20.5" width="16" height="5.5" rx="2.5" fill="#1a9e5c"/>
+  <!-- A -->
+  <path d="M69 26 L77 2 L85 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="72" y1="17" x2="82" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
+</svg>
     </div>
     <div class="nav-links">
       <a class="active">الرئيسية</a>
@@ -281,7 +285,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
     <p class="hero-sub">متابعة الأداء اليومي، إدارة طلبات التمويل، وتحليل البيانات — كل شيء في مكان واحد.</p>
     <div class="btns">
       <button class="btn-p" onclick="showPage('page-login')">سجّل دخولك ←</button>
-      <button class="btn-s" onclick="showPage('page-emp')">عرض تجريبي</button>
+      <button class="btn-s" onclick="showPage('page-choice')">عرض تجريبي</button>
     </div>
     <div class="hero-cards">
       <div class="hcard"><div class="hcard-icon">📊</div><div class="hcard-num">95,674</div><div class="hcard-lbl">سجل في محلل المبيعات</div></div>
@@ -339,7 +343,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
           <div class="tf-item"><div class="tf-dot">💰</div><div class="tf-info"><strong>تتبع التمويل لحظة بلحظة</strong><span>نسبة الإنجاز من 100% و150%</span></div></div>
           <div class="tf-item"><div class="tf-dot">👥</div><div class="tf-info"><strong>داشبورد المشرف والمدير</strong><span>مقارنة الفريق وفلتر بالتاريخ</span></div></div>
         </div>
-        <button class="btn-p" style="margin-top:24px;" onclick="showPage('page-emp')">جرّب الداشبورد ←</button>
+        <button class="btn-p" style="margin-top:24px;" onclick="showPage('page-choice')">جرّب الداشبورد ←</button>
       </div>
       <div class="dash-mock">
         <div class="dash-top"><span class="dash-top-t">📊 متابعة الأداء اليوم</span><span class="dash-top-d">30 مايو 2026</span></div>
@@ -347,13 +351,13 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
           <div class="fin-b"><div class="fin-b-lbl">تحقيق التمويل الشهري</div><div class="fin-b-amt">785,000 <span>ريال</span></div><div class="pb"><div class="pb-f" style="width:78%;"></div></div><div class="fin-pct">78% من الهدف</div></div>
           <div class="kg">
             <div class="kc"><div class="kc-v">12</div><div class="kc-l">📍 زيارة / 10</div><div class="kb"><div class="kb-f" style="width:100%;background:#3ABF6E;"></div></div></div>
-            <div class="kc"><div class="kc-v">28</div><div class="kc-l">🪪 كارت / 30</div><div class="kb"><div class="kb-f" style="width:93%;background:#7C6AF0;"></div></div></div>
-            <div class="kc"><div class="kc-v">1</div><div class="kc-l">📄 طلب / 1</div><div class="kb"><div class="kb-f" style="width:100%;background:#F0A500;"></div></div></div>
-            <div class="kc"><div class="kc-v">6</div><div class="kc-l">🔗 مصدر / 1</div><div class="kb"><div class="kb-f" style="width:100%;background:#06B6D4;"></div></div></div>
+            <div class="kc"><div class="kc-v">28</div><div class="kc-l">🪪 كارت / 30</div><div class="kb"><div class="kb-f" style="width:93%;background:#3ABF6E;"></div></div></div>
+            <div class="kc"><div class="kc-v">1</div><div class="kc-l">📄 طلب / 1</div><div class="kb"><div class="kb-f" style="width:100%;background:#3ABF6E;"></div></div></div>
+            <div class="kc"><div class="kc-v">6</div><div class="kc-l">🔗 مصدر / 1</div><div class="kb"><div class="kb-f" style="width:100%;background:#3ABF6E;"></div></div></div>
           </div>
           <div class="dt"><div class="dt-lbl">أداء الفريق</div>
             <div class="tr"><div class="td" style="background:#3ABF6E;"></div><span class="tn">خليل الرحمن</span><div class="tb"><div class="tb-f" style="width:92%;background:#3ABF6E;"></div></div><span class="tp" style="color:#3ABF6E;">92%</span></div>
-            <div class="tr"><div class="td" style="background:#F0A500;"></div><span class="tn">محمد شير</span><div class="tb"><div class="tb-f" style="width:78%;background:#F0A500;"></div></div><span class="tp" style="color:#F0A500;">78%</span></div>
+            <div class="tr"><div class="td" style="background:#3ABF6E;"></div><span class="tn">محمد شير</span><div class="tb"><div class="tb-f" style="width:78%;background:#3ABF6E;"></div></div><span class="tp" style="color:#F0A500;">78%</span></div>
           </div>
         </div>
       </div>
@@ -383,17 +387,17 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
   <footer class="footer">
     <div>
       <div class="footer-hala">
-        <svg viewBox="0 0 140 40" fill="none">
-          <rect x="2" y="4" width="7" height="32" rx="3.5" fill="white"/>
-          <rect x="2" y="17" width="26" height="7" rx="3.5" fill="white"/>
-          <rect x="21" y="4" width="7" height="32" rx="3.5" fill="white"/>
-          <path d="M38 36 L53 4 L68 36" stroke="white" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <line x1="44" y1="24" x2="62" y2="24" stroke="white" stroke-width="6.5" stroke-linecap="round"/>
-          <rect x="76" y="4" width="7" height="32" rx="3.5" fill="white"/>
-          <rect x="76" y="29" width="26" height="7" rx="3.5" fill="white"/>
-          <path d="M112 36 L127 4 L142 36" stroke="white" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <line x1="118" y1="24" x2="136" y2="24" stroke="white" stroke-width="6.5" stroke-linecap="round"/>
-        </svg>
+        <svg viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:26px;">
+  <rect x="1" y="2" width="5.5" height="24" rx="2.5" fill="white"/>
+  <rect x="1" y="11" width="17" height="5.5" rx="2.5" fill="white"/>
+  <rect x="13" y="2" width="5.5" height="24" rx="2.5" fill="white"/>
+  <path d="M25 26 L33 2 L41 26" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="28" y1="17" x2="38" y2="17" stroke="white" stroke-width="5" stroke-linecap="round"/>
+  <rect x="47" y="2" width="5.5" height="24" rx="2.5" fill="white"/>
+  <rect x="47" y="20.5" width="16" height="5.5" rx="2.5" fill="white"/>
+  <path d="M69 26 L77 2 L85 26" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="72" y1="17" x2="82" y2="17" stroke="white" stroke-width="5" stroke-linecap="round"/>
+</svg>
       </div>
       <div class="footer-sub">المنظومة الداخلية للفريق الميداني</div>
     </div>
@@ -407,7 +411,21 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
 <!-- ══ LOGIN PAGE ══════════════════════════════ -->
 <div class="page" id="page-login">
   <nav class="nav">
-    <div class="logo-svg"><svg viewBox="0 0 140 40" fill="none"><rect x="2" y="4" width="7" height="32" rx="3.5" fill="#1a9e5c"/><rect x="2" y="17" width="26" height="7" rx="3.5" fill="#1a9e5c"/><rect x="21" y="4" width="7" height="32" rx="3.5" fill="#1a9e5c"/><path d="M38 36 L53 4 L68 36" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><line x1="44" y1="24" x2="62" y2="24" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round"/><rect x="76" y="4" width="7" height="32" rx="3.5" fill="#1a9e5c"/><rect x="76" y="29" width="26" height="7" rx="3.5" fill="#1a9e5c"/><path d="M112 36 L127 4 L142 36" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><line x1="118" y1="24" x2="136" y2="24" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round"/></svg></div>
+    <div class="logo-svg"><svg viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:26px;">
+  <!-- H -->
+  <rect x="1" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
+  <rect x="1" y="11" width="17" height="5.5" rx="2.5" fill="#1a9e5c"/>
+  <rect x="13" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
+  <!-- A -->
+  <path d="M25 26 L33 2 L41 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="28" y1="17" x2="38" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
+  <!-- L -->
+  <rect x="47" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
+  <rect x="47" y="20.5" width="16" height="5.5" rx="2.5" fill="#1a9e5c"/>
+  <!-- A -->
+  <path d="M69 26 L77 2 L85 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="72" y1="17" x2="82" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
+</svg></div>
     <div></div>
     <button class="btn-s" onclick="showPage('page-home')" style="font-size:12px;padding:7px 16px;">← رجوع</button>
   </nav>
@@ -417,14 +435,24 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
     <div class="login-circle lc3"></div>
     <div class="login-card">
       <div class="login-logo">
-        <svg viewBox="0 0 140 40" fill="none"><rect x="2" y="4" width="7" height="32" rx="3.5" fill="#1a9e5c"/><rect x="2" y="17" width="26" height="7" rx="3.5" fill="#1a9e5c"/><rect x="21" y="4" width="7" height="32" rx="3.5" fill="#1a9e5c"/><path d="M38 36 L53 4 L68 36" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><line x1="44" y1="24" x2="62" y2="24" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round"/><rect x="76" y="4" width="7" height="32" rx="3.5" fill="#1a9e5c"/><rect x="76" y="29" width="26" height="7" rx="3.5" fill="#1a9e5c"/><path d="M112 36 L127 4 L142 36" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><line x1="118" y1="24" x2="136" y2="24" stroke="#1a9e5c" stroke-width="6.5" stroke-linecap="round"/></svg>
+        <svg viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:38px;">
+  <rect x="1" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
+  <rect x="1" y="11" width="17" height="5.5" rx="2.5" fill="#1a9e5c"/>
+  <rect x="13" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
+  <path d="M25 26 L33 2 L41 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="28" y1="17" x2="38" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
+  <rect x="47" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
+  <rect x="47" y="20.5" width="16" height="5.5" rx="2.5" fill="#1a9e5c"/>
+  <path d="M69 26 L77 2 L85 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <line x1="72" y1="17" x2="82" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
+</svg>
       </div>
       <div class="login-title">أهلاً بك</div>
       <div class="login-sub">سجّل دخولك للمنظومة الداخلية</div>
       <div class="login-form">
         <div><label class="inp-lbl">الكود الوظيفي</label><input class="inp" type="text" placeholder="C1-KR" id="code-inp"></div>
         <div><label class="inp-lbl">كلمة المرور (PIN)</label><input class="inp" type="password" placeholder="••••" id="pin-inp"></div>
-        <button class="login-btn" onclick="showPage('page-emp')">دخول ←</button>
+        <button class="login-btn" onclick="doLogin()">دخول ←</button>
       </div>
       <div class="quick-codes">
         <div class="qc-lbl">دخول سريع (تجريبي)</div>
@@ -465,23 +493,80 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
       <div class="kpi-section-title">📅 أداؤك اليوم</div>
       <div class="kpi-grid">
         <div class="kpi-card"><div class="kpi-icon-row"><span class="kpi-emoji">📍</span><span class="kpi-val">12</span></div><div class="kpi-lbl">زيارة / 10</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:100%;background:#3ABF6E;"></div></div></div>
-        <div class="kpi-card"><div class="kpi-icon-row"><span class="kpi-emoji">🔗</span><span class="kpi-val">6</span></div><div class="kpi-lbl">Non-Hala / 5</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:100%;background:#F0A500;"></div></div></div>
-        <div class="kpi-card"><div class="kpi-icon-row"><span class="kpi-emoji">🪪</span><span class="kpi-val">28</span></div><div class="kpi-lbl">بزنس كارد / 30</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:93%;background:#7C6AF0;"></div></div></div>
-        <div class="kpi-card"><div class="kpi-icon-row"><span class="kpi-emoji">📄</span><span class="kpi-val">1</span></div><div class="kpi-lbl">طلب تمويل / 1</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:100%;background:#06B6D4;"></div></div></div>
+        <div class="kpi-card"><div class="kpi-icon-row"><span class="kpi-emoji">🔗</span><span class="kpi-val">6</span></div><div class="kpi-lbl">Non-Hala / 5</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:100%;background:#3ABF6E;"></div></div></div>
+        <div class="kpi-card"><div class="kpi-icon-row"><span class="kpi-emoji">🪪</span><span class="kpi-val">28</span></div><div class="kpi-lbl">بزنس كارد / 30</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:93%;background:#3ABF6E;"></div></div></div>
+        <div class="kpi-card"><div class="kpi-icon-row"><span class="kpi-emoji">📄</span><span class="kpi-val">1</span></div><div class="kpi-lbl">طلب تمويل / 1</div><div class="kpi-bar"><div class="kpi-bar-f" style="width:100%;background:#3ABF6E;"></div></div></div>
       </div>
       <div class="days-card" style="margin-bottom:16px;">
         <div class="days-num">18 <span style="font-size:18px;color:#aaa;font-weight:400;">/22</span></div>
         <div class="days-lbl">📅 أيام العمل (باستثناء الجمعة والسبت)</div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-        <button class="act-btn green" onclick="showPage('page-home')" style="font-size:12px;">🗺️ خريطة العملاء</button>
-        <button class="act-btn mid" onclick="showPage('page-home')" style="font-size:12px;">📋 My List</button>
+        <button class="act-btn green" onclick="showPage('page-choice')" style="font-size:12px;">🗺️ خريطة العملاء</button>
+        <button class="act-btn mid" onclick="showPage('page-choice')" style="font-size:12px;">📋 My List</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══ CHOICE PAGE ══════════════════════════════ -->
+<div class="page" id="page-choice">
+  <div class="emp-page">
+    <div class="emp-top">
+      <div>
+        <div class="emp-top-title" id="choice-name">أهلاً خليل الرحمن</div>
+        <div class="emp-top-sub" id="choice-code">C1-KR — المنطقة الوسطى</div>
+      </div>
+      <button class="emp-back" onclick="showPage('page-home')">← خروج</button>
+    </div>
+    <div class="emp-body" style="padding-top:24px;">
+      <p style="font-size:14px;color:#888;font-weight:300;margin-bottom:24px;text-align:center;">اختر ما تريد</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+        <button onclick="showPage('page-emp')" style="background:#fff;border:1.5px solid rgba(58,191,110,.2);border-radius:16px;padding:24px 16px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;transition:all .22s;" onmouseover="this.style.borderColor='#3ABF6E';this.style.boxShadow='0 8px 24px rgba(58,191,110,.12)'" onmouseout="this.style.borderColor='rgba(58,191,110,.2)';this.style.boxShadow='none'">
+          <div style="font-size:32px;margin-bottom:10px;">📊</div>
+          <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">متابعة الأداء</div>
+          <div style="font-size:11px;color:#aaa;font-weight:300;">KPIs والتمويل اليومي</div>
+        </button>
+        <button onclick="showPage('page-home')" style="background:#fff;border:1.5px solid rgba(58,191,110,.2);border-radius:16px;padding:24px 16px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;transition:all .22s;" onmouseover="this.style.borderColor='#3ABF6E';this.style.boxShadow='0 8px 24px rgba(58,191,110,.12)'" onmouseout="this.style.borderColor='rgba(58,191,110,.2)';this.style.boxShadow='none'">
+          <div style="font-size:32px;margin-bottom:10px;">🗺️</div>
+          <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">خريطة العملاء</div>
+          <div style="font-size:11px;color:#aaa;font-weight:300;">العملاء الغير مزارين</div>
+        </button>
+        <button onclick="showPage('page-home')" style="background:#fff;border:1.5px solid rgba(58,191,110,.2);border-radius:16px;padding:24px 16px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;transition:all .22s;" onmouseover="this.style.borderColor='#3ABF6E';this.style.boxShadow='0 8px 24px rgba(58,191,110,.12)'" onmouseout="this.style.borderColor='rgba(58,191,110,.2)';this.style.boxShadow='none'">
+          <div style="font-size:32px;margin-bottom:10px;">📋</div>
+          <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">My List</div>
+          <div style="font-size:11px;color:#aaa;font-weight:300;">العملاء المؤهلون</div>
+        </button>
+        <button onclick="showPage('page-home')" style="background:#fff;border:1.5px solid rgba(58,191,110,.2);border-radius:16px;padding:24px 16px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;transition:all .22s;" onmouseover="this.style.borderColor='#3ABF6E';this.style.boxShadow='0 8px 24px rgba(58,191,110,.12)'" onmouseout="this.style.borderColor='rgba(58,191,110,.2)';this.style.boxShadow='none'">
+          <div style="font-size:32px;margin-bottom:10px;">⏱️</div>
+          <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">ساعات العمل</div>
+          <div style="font-size:11px;color:#aaa;font-weight:300;">تسجيل الشفت والدوام</div>
+        </button>
+        <button onclick="showPage('page-home')" style="background:#fff;border:1.5px solid rgba(58,191,110,.2);border-radius:16px;padding:24px 16px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;transition:all .22s;" onmouseover="this.style.borderColor='#3ABF6E';this.style.boxShadow='0 8px 24px rgba(58,191,110,.12)'" onmouseout="this.style.borderColor='rgba(58,191,110,.2)';this.style.boxShadow='none'">
+          <div style="font-size:32px;margin-bottom:10px;">📄</div>
+          <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">طلبات التمويل</div>
+          <div style="font-size:11px;color:#aaa;font-weight:300;">رفع ومتابعة الطلبات</div>
+        </button>
+        <button onclick="showPage('page-home')" style="background:#fff;border:1.5px solid rgba(58,191,110,.2);border-radius:16px;padding:24px 16px;cursor:pointer;text-align:center;font-family:'Tajawal',sans-serif;transition:all .22s;" onmouseover="this.style.borderColor='#3ABF6E';this.style.boxShadow='0 8px 24px rgba(58,191,110,.12)'" onmouseout="this.style.borderColor='rgba(58,191,110,.2)';this.style.boxShadow='none'">
+          <div style="font-size:32px;margin-bottom:10px;">📈</div>
+          <div style="font-size:14px;font-weight:700;color:#111;margin-bottom:4px;">محلل المبيعات</div>
+          <div style="font-size:11px;color:#aaa;font-weight:300;">تحليل البيانات والتريند</div>
+        </button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+function doLogin(){
+  const code=document.getElementById('code-inp').value.trim().toUpperCase()||'موظف';
+  const names={'C1-KR':'خليل الرحمن','C2-SM':'سيد مسيع الله','C5-MS':'محمد شير','W1-JH':'جابر محمد','SUP-AZ':'عبدالعزيز','WEST-MGR':'عثمان بابور'};
+  const name=names[code]||code;
+  document.getElementById('choice-name').textContent='أهلاً '+name;
+  document.getElementById('choice-code').textContent=code+' — المنظومة الداخلية';
+  showPage('page-choice');
+}
 function showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
@@ -490,7 +575,7 @@ function showPage(id){
 function quickLogin(code){
   document.getElementById('code-inp').value=code;
   document.getElementById('pin-inp').value='****';
-  setTimeout(()=>showPage('page-emp'),300);
+  setTimeout(()=>showPage('page-choice'),300);
 }
 function scrollTo(id){
   document.querySelector(id)?.scrollIntoView({behavior:'smooth'});
