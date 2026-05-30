@@ -26,7 +26,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
 
 /* ══ NAV ═══════════════════════════════════ */
 .nav{background:rgba(255,255,255,.97);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;backdrop-filter:blur(8px);}
-.logo-svg svg{height:22px;}
+.logo-svg{display:flex;align-items:center;}
 .nav-links{display:flex;gap:1.5rem;}
 .nav-links a{font-size:13px;color:#666;text-decoration:none;font-weight:400;transition:color .2s;cursor:pointer;}
 .nav-links a.active,.nav-links a:hover{color:var(--green-dark);font-weight:600;}
@@ -248,21 +248,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
 <div class="page active" id="page-home">
   <nav class="nav">
     <div class="logo-svg">
-      <svg viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:26px;">
-  <!-- H -->
-  <rect x="1" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
-  <rect x="1" y="11" width="17" height="5.5" rx="2.5" fill="#1a9e5c"/>
-  <rect x="13" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
-  <!-- A -->
-  <path d="M25 26 L33 2 L41 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <line x1="28" y1="17" x2="38" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
-  <!-- L -->
-  <rect x="47" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
-  <rect x="47" y="20.5" width="16" height="5.5" rx="2.5" fill="#1a9e5c"/>
-  <!-- A -->
-  <path d="M69 26 L77 2 L85 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <line x1="72" y1="17" x2="82" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
-</svg>
+      <span style="font-family:'Arial Black','Helvetica Neue',sans-serif;font-weight:900;font-size:22px;color:#1a9e5c;letter-spacing:2px;line-height:1;">HALA</span>
     </div>
     <div class="nav-links">
       <a class="active">الرئيسية</a>
@@ -387,17 +373,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
   <footer class="footer">
     <div>
       <div class="footer-hala">
-        <svg viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:26px;">
-  <rect x="1" y="2" width="5.5" height="24" rx="2.5" fill="white"/>
-  <rect x="1" y="11" width="17" height="5.5" rx="2.5" fill="white"/>
-  <rect x="13" y="2" width="5.5" height="24" rx="2.5" fill="white"/>
-  <path d="M25 26 L33 2 L41 26" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <line x1="28" y1="17" x2="38" y2="17" stroke="white" stroke-width="5" stroke-linecap="round"/>
-  <rect x="47" y="2" width="5.5" height="24" rx="2.5" fill="white"/>
-  <rect x="47" y="20.5" width="16" height="5.5" rx="2.5" fill="white"/>
-  <path d="M69 26 L77 2 L85 26" stroke="white" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <line x1="72" y1="17" x2="82" y2="17" stroke="white" stroke-width="5" stroke-linecap="round"/>
-</svg>
+        <span style="font-family:'Arial Black','Helvetica Neue',sans-serif;font-weight:900;font-size:20px;color:#fff;letter-spacing:2px;line-height:1;">HALA</span>
       </div>
       <div class="footer-sub">المنظومة الداخلية للفريق الميداني</div>
     </div>
@@ -411,21 +387,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
 <!-- ══ LOGIN PAGE ══════════════════════════════ -->
 <div class="page" id="page-login">
   <nav class="nav">
-    <div class="logo-svg"><svg viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:26px;">
-  <!-- H -->
-  <rect x="1" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
-  <rect x="1" y="11" width="17" height="5.5" rx="2.5" fill="#1a9e5c"/>
-  <rect x="13" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
-  <!-- A -->
-  <path d="M25 26 L33 2 L41 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <line x1="28" y1="17" x2="38" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
-  <!-- L -->
-  <rect x="47" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
-  <rect x="47" y="20.5" width="16" height="5.5" rx="2.5" fill="#1a9e5c"/>
-  <!-- A -->
-  <path d="M69 26 L77 2 L85 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <line x1="72" y1="17" x2="82" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
-</svg></div>
+    <div class="logo-svg"><span style="font-family:'Arial Black','Helvetica Neue',sans-serif;font-weight:900;font-size:20px;color:#fff;letter-spacing:2px;line-height:1;">HALA</span></div>
     <div></div>
     <button class="btn-s" onclick="showPage('page-home')" style="font-size:12px;padding:7px 16px;">← رجوع</button>
   </nav>
@@ -435,17 +397,7 @@ body{font-family:'Tajawal',sans-serif;direction:rtl;background:var(--white);over
     <div class="login-circle lc3"></div>
     <div class="login-card">
       <div class="login-logo">
-        <svg viewBox="0 0 90 28" fill="none" xmlns="http://www.w3.org/2000/svg" style="height:38px;">
-  <rect x="1" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
-  <rect x="1" y="11" width="17" height="5.5" rx="2.5" fill="#1a9e5c"/>
-  <rect x="13" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
-  <path d="M25 26 L33 2 L41 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <line x1="28" y1="17" x2="38" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
-  <rect x="47" y="2" width="5.5" height="24" rx="2.5" fill="#1a9e5c"/>
-  <rect x="47" y="20.5" width="16" height="5.5" rx="2.5" fill="#1a9e5c"/>
-  <path d="M69 26 L77 2 L85 26" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <line x1="72" y1="17" x2="82" y2="17" stroke="#1a9e5c" stroke-width="5" stroke-linecap="round"/>
-</svg>
+        <span style="font-family:'Arial Black','Helvetica Neue',sans-serif;font-weight:900;font-size:32px;color:#1a9e5c;letter-spacing:3px;line-height:1;">HALA</span>
       </div>
       <div class="login-title">أهلاً بك</div>
       <div class="login-sub">سجّل دخولك للمنظومة الداخلية</div>
