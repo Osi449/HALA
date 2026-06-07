@@ -1072,8 +1072,8 @@ async function buildAnResult(eid,months,info,fin){
     const otherMembers=coMembers.filter(id=>String(id)!==String(eid));
 
     if(otherMembers.length>0){
-      if(st_el)st_el.textContent='⏳ جاري تحميل بيانات المؤسسة ('+otherMembers.length+' كاشير)...';
       const st_el=document.getElementById('anst');
+      if(st_el)st_el.textContent='⏳ جاري تحميل بيانات المؤسسة ('+otherMembers.length+' كاشير)...';
 
       // Load sales for all peers
       const peerData=[];
