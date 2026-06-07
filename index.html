@@ -1072,8 +1072,8 @@ async function buildAnResult(eid,months,info,fin){
     const otherMembers=coMembers.filter(id=>String(id)!==String(eid));
 
     if(otherMembers.length>0){
-      const st_el=document.getElementById('anst');
-      if(st_el)st_el.textContent='⏳ جاري تحميل بيانات المؤسسة ('+otherMembers.length+' كاشير)...';
+      const _stEl=document.getElementById('anst');
+      if(_stEl)_stEl.textContent='⏳ جاري تحميل بيانات المؤسسة ('+otherMembers.length+' كاشير)...';
 
       // Load sales for all peers
       const peerData=[];
@@ -1086,7 +1086,7 @@ async function buildAnResult(eid,months,info,fin){
           peerData.push({id:pid,months:pm,total:ptotal,info:pinfo,fin:calcFin2(pm)});
         }
       }
-      if(st_el)st_el.textContent='';
+      if(_stEl)_stEl.textContent='';
 
       // Sort by total descending
       peerData.sort((a,b)=>b.total-a.total);
