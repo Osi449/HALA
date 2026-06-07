@@ -918,15 +918,7 @@ async function findCompanyPeers(companyId){
   return peers;
 }
 
-function mLbl(m){
-  if(!m)return'—';
-  const [y,mn]=m.split('-');
-  const names=['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-  return (names[parseInt(mn)]||mn)+' '+(y||'');
-}
-
-function fmt(v){if(!v&&v!==0)return'—';if(v>=1000000)return(v/1000000).toFixed(1)+'M';if(v>=1000)return(v/1000).toFixed(0)+'K';return Math.round(v).toLocaleString();}
-function fR(v){if(!v)return'—';return Math.round(v).toLocaleString('ar-SA')+' ريال';}
+// mLbl/fmt/fR already defined above
 
 function calcFin(months){
   if(!months?.length)return null;
