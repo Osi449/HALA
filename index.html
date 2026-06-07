@@ -847,95 +847,350 @@ function saveChunked(key,obj){const s=JSON.stringify(obj),sz=3.8*1024*1024,n=Mat
 function loadChunked(key){const n=parseInt(localStorage.getItem(key+'_n')||'0');if(!n)return null;let s='';for(let i=0;i<n;i++){const c=localStorage.getItem(key+'_'+i);if(!c)return null;s+=c;}try{return JSON.parse(s);}catch(e){return null;}}
 
 // ── ANALYZER ─────────────────────────────
+
+// ── SALES ANALYZER ──────────────────────────────────────────────
 const AN_BASE=(()=>{const p=window.location.pathname;const base=p.substring(0,p.lastIndexOf('/')+1);return window.location.origin+base;})();
-let salesIndexLoaded=false;const salesChunkLoaded={};
+let anIdxLoaded=false;
 
 async function loadSalesIndex(){
-  if(salesIndexLoaded)return true;
-  return new Promise(r=>{const s=document.createElement('script');s.src=AN_BASE+'sales_index.js';s.onload=()=>{salesIndexLoaded=true;r(true);};s.onerror=()=>r(false);document.head.appendChild(s);});
+  if(anIdxLoaded&&window.SALES_INDEX)return true;
+  if(window.SALES_INDEX){anIdxLoaded=true;return true;}
+  return new Promise(res=>{
+    const s=document.createElement('script');
+    s.src=AN_BASE+'sales_index.js';
+    s.onload=()=>{anIdxLoaded=true;res(true);};
+    s.onerror=()=>res(false);
+    document.head.appendChild(s);
+  });
 }
-async function loadSalesChunk(n){
-  if(salesChunkLoaded[n])return true;
-  return new Promise(r=>{const s=document.createElement('script');s.src=AN_BASE+'sales_'+n+'.js';s.onload=()=>{salesChunkLoaded[n]=true;r(true);};s.onerror=()=>r(false);document.head.appendChild(s);});
+
+async function loadSalesChunk(cn){
+  if(window['SALES_CHUNK_'+cn])return true;
+  return new Promise(res=>{
+    const s=document.createElement('script');
+    s.src=AN_BASE+'sales_'+cn+'.js';
+    s.onload=()=>res(true);
+    s.onerror=()=>res(false);
+    document.head.appendChild(s);
+  });
 }
-async function findEntity(eid){
-  const ok=await loadSalesIndex();if(!ok||!window.SALES_INDEX)return null;
-  const cn=window.SALES_INDEX[eid];if(cn===undefined)return null;
-  const ck=await loadSalesChunk(cn);if(!ck)return null;
-  const cd=window['SALES_CHUNK_'+cn];return cd?cd[eid]:null;
+
+async function findByEntity(eid){
+  const ok=await loadSalesIndex();
+  if(!ok||!window.SALES_INDEX)return null;
+  const cn=window.SALES_INDEX[String(eid)];
+  if(cn===undefined)return null;
+  await loadSalesChunk(cn);
+  const cd=window['SALES_CHUNK_'+cn];
+  return cd?cd[String(eid)]:null;
+}
+
+// بحث بالـ TID أو الجوال — يبحث في كل الـ chunks المحملة
+async function findByOther(term){
+  // نبحث في clients files إذا كانت محملة
+  for(const key of Object.keys(window)){
+    if(!key.startsWith('EMP_DATA_'))continue;
+    const data=window[key];
+    if(!data?.clients)continue;
+    const found=data.clients.find(c=>
+      String(c.tid||'')===term||
+      String(c.cashier||'')===term||
+      String(c.manager||'')===term||
+      String(c.owner||'')===term
+    );
+    if(found)return found;
+  }
+  return null;
+}
+
+// إيجاد كل الكاشيرات في نفس المؤسسة (Company ID)
+async function findCompanyPeers(companyId){
+  if(!companyId)return[];
+  // ابحث في clients files عن نفس الـ companyId
+  const peers=[];
+  for(const key of Object.keys(window)){
+    if(!key.startsWith('EMP_DATA_'))continue;
+    const data=window[key];
+    if(!data?.clients)continue;
+    data.clients.filter(c=>String(c.cr||c.companyId||'')===String(companyId))
+      .forEach(c=>peers.push(c));
+  }
+  return peers;
+}
+
+function mLbl(m){
+  if(!m)return'—';
+  const [y,mn]=m.split('-');
+  const names=['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  return (names[parseInt(mn)]||mn)+' '+(y||'');
+}
+
+function fmt(v){if(!v&&v!==0)return'—';if(v>=1000000)return(v/1000000).toFixed(1)+'M';if(v>=1000)return(v/1000).toFixed(0)+'K';return Math.round(v).toLocaleString();}
+function fR(v){if(!v)return'—';return Math.round(v).toLocaleString('ar-SA')+' ريال';}
+
+function calcFin(months){
+  if(!months?.length)return null;
+  const vals=months.map(m=>m.sales).filter(v=>v>0);
+  if(!vals.length)return null;
+  const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
+  const last6=months.slice(-6).map(m=>m.sales).filter(v=>v>0);
+  const avg6=last6.length?last6.reduce((a,b)=>a+b,0)/last6.length:avg;
+  const mx=Math.max(...vals),mn=Math.min(...vals),vol=mx>0?((mx-mn)/mx)*100:0;
+  const annualSales=avg6*12;
+  const estimate=Math.round(annualSales*0.10/1000)*1000; // 10% من المبيعات السنوية
+  return{avg,avg6,vol,annualSales,estimate,
+    grade:vol<50?'منخفض':vol<70?'متوسط':'عالي',
+    gradeIcon:vol<50?'🟢':vol<70?'🟡':'⚠️',
+    gradeColor:vol<50?'#166534':vol<70?'#D97706':'#DC2626',
+    rec:vol<50?'دخل منتظم — مؤهل جيد للتمويل':vol<70?'تذبذب موسمي — يمكن التمويل بتحفظ':'دخل غير منتظم — يتطلب مراجعة'};
 }
 
 function renderAnalyzer(){
   try{const h=lLS('hh4',[]);if(h.length)anHist=h;}catch(e){}
   let h=tbH('محلل المبيعات','📈',null,"showPage('home')");
   h+='<div style="background:#F5F3FF;border-bottom:1px solid #E5E7EB;padding:14px 20px;">';
-  h+='<div style="display:flex;gap:8px;max-width:680px;margin:0 auto;">';
-  h+='<input id="anq" style="flex:1;background:#fff;border:1.5px solid #DDD6FE;border-radius:10px;padding:11px 16px;font-size:16px;font-weight:700;outline:none;font-family:monospace;letter-spacing:2px;color:#6B21A8;direction:ltr;" placeholder="أدخل Entity ID" onkeydown="if(event.key===\'Enter\')doAnSrch()">';
-  h+='<button onclick="doAnSrch()" style="padding:11px 24px;background:linear-gradient(135deg,#6B21A8,#7C3AED);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:\'Cairo\',sans-serif;">بحث ←</button>';
-  h+='</div><div id="anst" style="font-size:12px;text-align:center;margin-top:8px;color:#6B21A8;">☁️ البيانات على الموقع — لا حاجة لرفع ملف</div>';
-  if(anHist.length)h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;max-width:680px;margin:10px auto 0;">'+anHist.map(x=>'<span onclick="document.getElementById(\'anq\').value=\''+x.eid+'\'" style="font-size:10px;padding:3px 10px;border-radius:20px;cursor:pointer;background:#F5F3FF;color:#6B21A8;border:1px solid #DDD6FE;font-family:monospace;">'+x.eid+'</span>').join('')+'</div>';
-  h+='</div><div class="content" id="anres"><div style="text-align:center;padding:60px 20px;"><div style="font-size:52px;margin-bottom:16px;">🔍</div><div style="font-size:15px;font-weight:700;margin-bottom:8px;">ابحث عن عميل بـ Entity ID</div><div style="background:#F5F3FF;border-radius:10px;padding:10px 20px;font-size:12px;color:#6B21A8;display:inline-block;">☁️ 95,674 عميل · يناير 2025 — أبريل 2026</div></div></div>';
+  h+='<div style="max-width:680px;margin:0 auto;">';
+  h+='<div style="display:flex;gap:8px;margin-bottom:8px;">';
+  h+='<input id="anq" style="flex:1;background:#fff;border:1.5px solid #DDD6FE;border-radius:10px;padding:11px 16px;font-size:16px;font-weight:700;outline:none;font-family:monospace;letter-spacing:2px;color:#6B21A8;direction:ltr;" placeholder="Entity ID / TID / رقم الجوال" onkeydown="if(event.key===\'Enter\')doAnSrch()">';
+  h+='<button onclick="doAnSrch()" style="padding:11px 24px;background:linear-gradient(135deg,#6B21A8,#7C3AED);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">بحث</button>';
+  h+='</div>';
+  h+='<div id="anst" style="font-size:12px;color:#9CA3AF;min-height:16px;"></div>';
+  h+='</div></div>';
+  h+='<div class="content"><div id="anres">';
+  if(anHist.length){
+    h+='<div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;">🕐 آخر عمليات البحث</div>';
+    h+=anHist.map(x=>'<button onclick="document.getElementById(\'anq\').value=\''+x.eid+'\';doAnSrch()" style="margin:3px;padding:5px 12px;background:#F5F3FF;border:1px solid #DDD6FE;border-radius:20px;font-size:12px;color:#6B21A8;cursor:pointer;font-family:monospace;">'+x.eid+'</button>').join('');
+  }
+  h+='</div></div>';
   document.getElementById('analyzer').innerHTML=h;
 }
 
 async function doAnSrch(){
-  const eid=document.getElementById('anq')?.value?.trim();
-  const st=document.getElementById('anst');const res=document.getElementById('anres');
-  if(!eid)return;
+  const q=(document.getElementById('anq')?.value||'').trim();
+  const st=document.getElementById('anst');
+  const res=document.getElementById('anres');
+  if(!q)return;
   if(st){st.style.color='#6B21A8';st.textContent='⏳ جاري البحث...';}
+
   try{
-    const s=await findEntity(eid);
-    if(!s){if(st){st.style.color='#DC2626';st.textContent='⚠️ رقم العميل غير موجود';}return;}
+    let eid=null;
+    let clientInfo=null;
+
+    // محاولة البحث بـ Entity ID أولاً
+    const ok=await loadSalesIndex();
+    if(ok&&window.SALES_INDEX&&window.SALES_INDEX[q]!==undefined){
+      eid=q;
+    }
+
+    // إذا ما وجد — ابحث في clients files بـ TID أو جوال
+    if(!eid){
+      if(st)st.textContent='⏳ البحث في بيانات العملاء...';
+      clientInfo=await findByOther(q);
+      if(clientInfo){
+        eid=clientInfo.cashier||clientInfo.id;
+        // جرب Entity ID من التفاصيل
+        if(clientInfo.tid&&window.SALES_INDEX&&window.SALES_INDEX[clientInfo.tid]!==undefined){
+          eid=clientInfo.tid;
+        }
+      }
+    }
+
+    if(!eid||!ok||window.SALES_INDEX[String(eid)]===undefined){
+      if(st){st.style.color='#DC2626';st.textContent='⚠️ رقم غير موجود في قاعدة البيانات';}
+      return;
+    }
+
     if(st)st.textContent='';
+    const s=await findByEntity(eid);
+    if(!s){
+      if(st){st.style.color='#DC2626';st.textContent='⚠️ لا توجد بيانات مبيعات لهذا العميل';}
+      return;
+    }
+
     const months=Object.entries(s).map(([m,v])=>({month:m,sales:v})).sort((a,b)=>a.month.localeCompare(b.month));
     const fin=calcFin(months);
+
+    // حفظ التاريخ
     const hst=[{eid},...anHist.filter(x=>x.eid!==eid)].slice(0,10);
     anHist=hst;sLS('hh4',hst);
-    if(res)res.innerHTML=anResH(eid,months,{},fin);
-  }catch(e){if(st){st.style.color='#DC2626';st.textContent='خطأ في البحث';}}
+
+    // بحث عن بيانات المؤسسة (Company peers)
+    let peers=[];
+    if(clientInfo?.cr){
+      if(st)st.textContent='⏳ جاري تحميل بيانات المؤسسة...';
+      peers=await findCompanyPeers(clientInfo.cr);
+    }
+
+    if(res)res.innerHTML=await anResH(eid,months,clientInfo||{},fin,peers);
+
+  }catch(e){
+    console.error(e);
+    if(st){st.style.color='#DC2626';st.textContent='خطأ في البحث: '+e.message;}
+  }
 }
 
-function calcFin(months){
-  if(!months?.length)return null;
-  const vals=months.map(m=>m.sales).filter(v=>v>0);if(!vals.length)return null;
-  const avg=vals.reduce((a,b)=>a+b,0)/vals.length;
-  const last6=months.slice(-6).map(m=>m.sales).filter(v=>v>0);
-  const avg6=last6.length?last6.reduce((a,b)=>a+b,0)/last6.length:avg;
-  const mx=Math.max(...vals),mn=Math.min(...vals),vol=mx>0?((mx-mn)/mx)*100:0;
-  const rate=vol<50?0.10:0.05,est=Math.min(Math.max(avg6*12*rate,1000),2000000);
-  return{avg,avg6,vol,annualSales:avg6*12,rate:rate*100,estimate:Math.round(est/1000)*1000,
-    grade:vol<50?'منخفض':vol<70?'متوسط':'عالي',gradeIcon:vol<50?'🟢':vol<70?'🟡':'⚠️',
-    gradeColor:vol<50?'#166534':vol<70?'#D97706':'#DC2626',
-    rec:vol<50?'دخل منتظم — مؤهل جيد للتمويل':vol<70?'تذبذب موسمي — يمكن التمويل بتحفظ':'دخل غير منتظم — يتطلب مراجعة'};
-}
+async function anResH(eid,months,info,fin,peers){
+  const avg=fin?.avg||0;
+  const mxS=Math.max(...months.map(m=>m.sales));
+  const mnS=Math.min(...months.map(m=>m.sales));
+  const maxM=months.reduce((a,b)=>a.sales>b.sales?a:b,months[0]);
+  const minM=months.filter(m=>m.sales>0).reduce((a,b)=>a.sales<b.sales?a:b,months[0]);
 
-function anResH(eid,months,info,fin){
-  const avg=fin?.avg||0,mxS=Math.max(...months.map(m=>m.sales)),mnS=Math.min(...months.map(m=>m.sales));
-  const maxM=months.reduce((a,b)=>a.sales>b.sales?a:b,months[0]),minM=months.filter(m=>m.sales>0).reduce((a,b)=>a.sales<b.sales?a:b,months[0]);
-  const cW=570,cH=180,pL=48,pR=20,pT=28,pB=28,iW=cW-pL-pR,iH=cH-pT-pB;
-  const xSt=months.length>1?iW/(months.length-1):0,yRng=mxS-mnS||1;
-  const xp=i=>pL+i*xSt,yp=v=>pT+iH-(((v-mnS)/yRng)*iH);
-  const avgY=yp(avg),pts=months.map((m,i)=>({x:xp(i),y:yp(m.sales),v:m.sales,month:m.month}));
-  const poly=pts.map(p=>p.x+','+p.y).join(' ');
-  let h='<div class="card" style="padding:0;overflow:hidden;"><div style="background:linear-gradient(135deg,#6B21A8,#166534);padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start;"><div><div style="font-size:20px;font-weight:800;color:#fff;">'+(info.name||'Entity '+eid)+'</div><div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;">ID: '+eid+'</div></div><div style="text-align:right;"><div style="font-size:22px;font-weight:900;color:#fff;">'+fmt(fin?.avg6)+'</div><div style="font-size:10px;color:rgba(255,255,255,0.7);">متوسط آخر 6 أشهر</div></div></div>';
-  if(info.name||info.cashier)h+='<div style="padding:14px 20px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">'+[{l:'المحاسب',v:info.cashier||'—'},{l:'المدير',v:info.manager||'—'},{l:'المنطقة',v:info.zone||'—'},{l:'السجل',v:info.code||'—'}].map(x=>'<div style="background:#FAFAFA;border-radius:10px;padding:10px 12px;"><div style="font-size:9px;color:#9CA3AF;margin-bottom:3px;">'+x.l+'</div><div style="font-size:12px;font-weight:600;word-break:break-all;">'+x.v+'</div></div>').join('')+'</div>';
+  // ══ SVG CHART HELPER ══
+  function makeChart(chartMonths,color,height){
+    const cW=570,cH=height||160,pL=48,pR=20,pT=20,pB=24;
+    const iW=cW-pL-pR,iH=cH-pT-pB;
+    const mxV=Math.max(...chartMonths.map(m=>m.sales))||1;
+    const mnV=Math.min(...chartMonths.map(m=>m.sales))||0;
+    const xSt=chartMonths.length>1?iW/(chartMonths.length-1):0;
+    const yRng=mxV-mnV||1;
+    const xp=i=>pL+i*xSt;
+    const yp=v=>pT+iH-(((v-mnV)/yRng)*iH);
+    const avg2=chartMonths.reduce((a,b)=>a+b.sales,0)/chartMonths.length;
+    const avgY=yp(avg2);
+    const pts=chartMonths.map((m,i)=>({x:xp(i),y:yp(m.sales),v:m.sales,month:m.month}));
+    const poly=pts.map(p=>p.x+','+p.y).join(' ');
+    const gradId='g'+Math.random().toString(36).slice(2,7);
+    let s='<svg width="'+cW+'" height="'+cH+'" viewBox="0 0 '+cW+' '+cH+'" style="min-width:'+cW+'px;display:block;">';
+    s+='<defs><linearGradient id="'+gradId+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+color+'" stop-opacity="0.2"/><stop offset="100%" stop-color="'+color+'" stop-opacity="0.02"/></linearGradient></defs>';
+    [0,0.5,1].forEach(t=>{const y=pT+iH*t,v=mxV-(t*(mxV-mnV));s+='<line x1="'+pL+'" y1="'+y+'" x2="'+(cW-pR)+'" y2="'+y+'" stroke="#E5E7EB" stroke-width="1"/><text x="'+(pL-4)+'" y="'+(y+4)+'" text-anchor="end" font-size="8" fill="#9CA3AF">'+fmt(v)+'</text>';});
+    s+='<line x1="'+pL+'" y1="'+avgY+'" x2="'+(cW-pR)+'" y2="'+avgY+'" stroke="#D97706" stroke-width="1" stroke-dasharray="3,3"/>';
+    s+='<path d="M'+pts[0].x+','+(pT+iH)+' '+pts.map(p=>'L'+p.x+','+p.y).join(' ')+' L'+pts[pts.length-1].x+','+(pT+iH)+' Z" fill="url(#'+gradId+')"/>';
+    s+='<polyline points="'+poly+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+    pts.forEach(p=>{s+='<circle cx="'+p.x+'" cy="'+p.y+'" r="3" fill="'+color+'" stroke="white" stroke-width="1.5"/><text x="'+p.x+'" y="'+(cH-4)+'" text-anchor="middle" font-size="7" fill="#9CA3AF">'+p.month.slice(2)+'</text>';});
+    s+='</svg>';
+    return s;
+  }
+
+  // ══ MAIN CLIENT CARD ══
+  let h='<div class="card" style="padding:0;overflow:hidden;">';
+  h+='<div style="background:linear-gradient(135deg,#6B21A8,#166534);padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start;">';
+  h+='<div><div style="font-size:20px;font-weight:800;color:#fff;">'+(info.name||'Entity '+eid)+'</div>';
+  h+='<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-top:4px;">Entity ID: '+eid+'</div></div>';
+  h+='<div style="text-align:right;"><div style="font-size:22px;font-weight:900;color:#fff;">'+fmt(fin?.avg6)+'</div>';
+  h+='<div style="font-size:10px;color:rgba(255,255,255,0.7);">متوسط آخر 6 أشهر</div></div></div>';
+
+  // معلومات العميل
+  if(info.cashier||info.manager||info.zone){
+    h+='<div style="padding:14px 20px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;">';
+    [{l:'المحاسب',v:info.cashier||'—'},{l:'المدير',v:info.manager||'—'},{l:'المنطقة',v:info.zone||'—'},{l:'الزون',v:info.zone||'—'}]
+      .map(x=>'<div style="background:#FAFAFA;border-radius:10px;padding:10px 12px;"><div style="font-size:9px;color:#9CA3AF;margin-bottom:3px;">'+x.l+'</div><div style="font-size:12px;font-weight:600;word-break:break-all;">'+x.v+'</div></div>')
+      .forEach(x=>h+=x);
+    h+='</div>';
+  }
   h+='</div>';
-  h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-size:13px;font-weight:700;">📈 ترند المبيعات الشهرية</div><div style="font-size:11px;color:#9CA3AF;">'+mLbl(months[0]?.month)+' ← '+mLbl(months[months.length-1]?.month)+'</div></div>';
-  h+='<div style="overflow-x:auto;"><svg width="'+cW+'" height="'+cH+'" viewBox="0 0 '+cW+' '+cH+'" style="min-width:'+cW+'px;display:block;"><defs><linearGradient id="glg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#22C55E" stop-opacity="0.25"/><stop offset="100%" stop-color="#22C55E" stop-opacity="0.02"/></linearGradient></defs>';
-  [0,0.25,0.5,0.75,1].forEach(t=>{const y=pT+iH*t,v=mxS-(t*(mxS-mnS));h+='<line x1="'+pL+'" y1="'+y+'" x2="'+(cW-pR)+'" y2="'+y+'" stroke="#E5E7EB" stroke-width="1"/><text x="'+(pL-4)+'" y="'+(y+4)+'" text-anchor="end" font-size="9" fill="#9CA3AF">'+fmt(v)+'</text>';});
-  h+='<line x1="'+pL+'" y1="'+avgY+'" x2="'+(cW-pR)+'" y2="'+avgY+'" stroke="#D97706" stroke-width="1.5" stroke-dasharray="4,4"/><text x="'+(cW-pR+2)+'" y="'+(avgY+4)+'" font-size="9" fill="#D97706">متوسط</text>';
-  h+='<path d="M'+pts[0].x+','+(pT+iH)+' '+pts.map(p=>'L'+p.x+','+p.y).join(' ')+' L'+pts[pts.length-1].x+','+(pT+iH)+' Z" fill="url(#glg)"/>';
-  h+='<polyline points="'+poly+'" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>';
-  pts.forEach(p=>{const isH=p.v>avg*1.2,isL=p.v<avg*0.8,c=isH?'#166534':isL?'#DC2626':'#22C55E';const lx=Math.min(Math.max(p.x,pL+15),cW-pR-15),ly=p.y>pT+20?p.y-10:p.y+18;h+='<circle cx="'+p.x+'" cy="'+p.y+'" r="4" fill="'+c+'" stroke="white" stroke-width="2"/><text x="'+lx+'" y="'+ly+'" text-anchor="middle" font-size="9" font-weight="700" fill="'+c+'">'+fmt(p.v)+'</text><text x="'+p.x+'" y="'+(cH-4)+'" text-anchor="middle" font-size="8" fill="#9CA3AF">'+p.month.slice(2)+'</text>';});
-  h+='</svg></div>';
-  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px;">'+[{l:'أعلى شهر',v:fmt(maxM?.sales),s:mLbl(maxM?.month),c:'#166534'},{l:'أدنى شهر',v:fmt(minM?.sales),s:mLbl(minM?.month),c:'#DC2626'},{l:'المتوسط',v:fmt(avg),s:'كل الفترة',c:'#1A1A2E'},{l:'الإجمالي',v:fmt(months.reduce((a,b)=>a+b.sales,0)),s:'ريال',c:'#15803D'}].map(x=>'<div style="background:#FAFAFA;border-radius:10px;padding:10px 8px;text-align:center;"><div style="font-size:9px;color:#9CA3AF;margin-bottom:3px;">'+x.l+'</div><div style="font-size:15px;font-weight:800;color:'+x.c+';">'+x.v+'</div><div style="font-size:9px;color:#9CA3AF;margin-top:2px;">'+x.s+'</div></div>').join('')+'</div></div>';
-  h+='<div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:14px;">📊 تحليل الفولاتية</div><div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;"><div style="flex:1;background:#E5E7EB;border-radius:20px;height:12px;overflow:hidden;"><div style="height:100%;width:'+Math.min(fin?.vol||0,100)+'%;background:'+fin?.gradeColor+';border-radius:20px;"></div></div><div style="font-size:24px;font-weight:900;color:'+fin?.gradeColor+'">'+fin?.vol?.toFixed(1)+'%</div><div style="font-size:14px;font-weight:700;color:'+fin?.gradeColor+'">'+fin?.gradeIcon+' '+fin?.grade+'</div></div><div style="background:#FAFAFA;border-radius:10px;padding:12px 14px;font-size:13px;color:#4B5563;line-height:1.7;">'+fin?.rec+'</div></div>';
-  h+='<div style="background:linear-gradient(135deg,#6B21A8,#166534);border-radius:16px;padding:20px;"><div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:4px;">💰 التقدير التمويلي</div><div style="font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:14px;">تقدير مبدئي — غير ملزم</div><div style="text-align:center;margin-bottom:14px;"><div style="font-size:40px;font-weight:900;color:#fff;">'+fR(fin?.estimate)+'</div></div><div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px 16px;font-size:12px;color:rgba(255,255,255,0.85);line-height:2;"><div>المبيعات السنوية: <strong style="color:#fff;">'+fR(fin?.annualSales)+'</strong></div><div>نسبة التمويل: <strong style="color:#fff;">'+fin?.rate+'%</strong></div><div>الفولاتية: <strong style="color:#fff;">'+fin?.gradeIcon+' '+fin?.grade+' — '+fin?.vol?.toFixed(1)+'%</strong></div></div></div>';
-  h+='<div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:14px;">📋 تفاصيل شهرية</div><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:#F5F3FF;"><th style="padding:8px 12px;text-align:right;color:#6B21A8;font-weight:700;border-bottom:1px solid #DDD6FE;">الشهر</th><th style="padding:8px 12px;text-align:left;color:#6B21A8;font-weight:700;border-bottom:1px solid #DDD6FE;font-family:monospace;">المبيعات</th><th style="padding:8px 12px;text-align:center;color:#6B21A8;font-weight:700;border-bottom:1px solid #DDD6FE;">vs المتوسط</th></tr></thead><tbody>'+[...months].reverse().map((m,i)=>{const diff=avg>0?((m.sales-avg)/avg)*100:0,hi=diff>20,lo=diff<-20;return'<tr style="background:'+(i%2===0?'#fff':'#FAFAFA')+'"><td style="padding:8px 12px;color:#4B5563;border-bottom:1px solid #E5E7EB;">'+mLbl(m.month)+'</td><td style="padding:8px 12px;text-align:left;font-weight:600;color:'+(hi?'#166534':lo?'#DC2626':'#1A1A2E')+';font-family:monospace;border-bottom:1px solid #E5E7EB;">'+m.sales.toLocaleString('ar-SA',{maximumFractionDigits:0})+'</td><td style="padding:8px 12px;text-align:center;border-bottom:1px solid #E5E7EB;"><span style="font-size:11px;color:'+(hi?'#166534':lo?'#DC2626':'#9CA3AF')+';background:'+(hi?'#F0FDF4':lo?'#FEF2F2':'#FAFAFA')+';padding:2px 8px;border-radius:20px;">'+(diff>=0?'+':'')+diff.toFixed(0)+'%</span></td></tr>';}).join('')+'</tbody></table></div>';
+
+  // ترند المبيعات
+  h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
+  h+='<div style="font-size:13px;font-weight:700;">📈 ترند المبيعات</div>';
+  h+='<div style="font-size:10px;color:#9CA3AF;">'+mLbl(months[0]?.month)+' — '+mLbl(months[months.length-1]?.month)+'</div></div>';
+  h+='<div style="overflow-x:auto;">'+makeChart(months,'#22C55E',160)+'</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;">';
+  [{l:'أعلى شهر',v:fmt(maxM?.sales),s:mLbl(maxM?.month),c:'#166534'},{l:'أدنى شهر',v:fmt(minM?.sales),s:mLbl(minM?.month),c:'#DC2626'},{l:'المتوسط',v:fmt(avg),s:'كل الفترة',c:'#1A1A2E'},{l:'الإجمالي',v:fmt(months.reduce((a,b)=>a+b.sales,0)),s:'ريال',c:'#15803D'}]
+    .forEach(x=>{h+='<div style="background:#FAFAFA;border-radius:10px;padding:10px 8px;text-align:center;"><div style="font-size:9px;color:#9CA3AF;margin-bottom:2px;">'+x.l+'</div><div style="font-size:14px;font-weight:800;color:'+x.c+';">'+x.v+'</div><div style="font-size:9px;color:#9CA3AF;">'+x.s+'</div></div>';});
+  h+='</div></div>';
+
+  // التقدير التمويلي (10% من المبيعات السنوية)
+  h+='<div style="background:linear-gradient(135deg,#6B21A8,#166534);border-radius:16px;padding:20px;">';
+  h+='<div style="font-size:13px;font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:4px;">💰 التقدير التمويلي</div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:12px;">10% من المبيعات السنوية — تقدير مبدئي</div>';
+  h+='<div style="text-align:center;margin-bottom:14px;"><div style="font-size:40px;font-weight:900;color:#fff;">'+fR(fin?.estimate)+'</div></div>';
+  h+='<div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px 16px;font-size:12px;color:rgba(255,255,255,0.85);line-height:2;">';
+  h+='<div>المبيعات السنوية المتوقعة: <strong style="color:#fff;">'+fR(fin?.annualSales)+'</strong></div>';
+  h+='<div>الفولاتية: <strong style="color:#fff;">'+fin?.gradeIcon+' '+fin?.grade+' — '+fin?.vol?.toFixed(1)+'%</strong></div>';
+  h+='<div>التوصية: <strong style="color:#fff;">'+fin?.rec+'</strong></div>';
+  h+='</div></div>';
+
+  // ══ COMPANY PEERS ══
+  if(peers&&peers.length>0){
+    // Load sales for all peers
+    const peerSales=[];
+    for(const peer of peers){
+      const peid=peer.tid||peer.cashier||peer.id;
+      if(!peid||String(peid)===String(eid))continue;
+      const psales=await findByEntity(String(peid));
+      if(psales){
+        const pmonths=Object.entries(psales).map(([m,v])=>({month:m,sales:v})).sort((a,b)=>a.month.localeCompare(b.month));
+        const ptotal=pmonths.reduce((a,b)=>a+b.sales,0);
+        const pavg6=pmonths.slice(-6).reduce((a,b)=>a+b.sales,0)/Math.min(6,pmonths.length);
+        peerSales.push({peer,peid,pmonths,ptotal,pavg6});
+      }
+    }
+
+    if(peerSales.length>0){
+      // ترتيب حسب المبيعات
+      peerSales.sort((a,b)=>b.ptotal-a.ptotal);
+      const top5=peerSales.slice(0,5);
+      const rest=peerSales.slice(5);
+
+      h+='<div class="card">';
+      h+='<div style="font-size:13px;font-weight:700;margin-bottom:6px;">🏢 بيانات المؤسسة</div>';
+      h+='<div style="font-size:12px;color:#9CA3AF;margin-bottom:14px;">إجمالي الكاشيرات في المؤسسة: <strong style="color:#6B21A8;">'+peerSales.length+'</strong></div>';
+
+      // أفضل 5 كاشيرات
+      h+='<div style="font-size:12px;font-weight:700;color:#166534;margin-bottom:10px;">🏆 أفضل 5 كاشيرات</div>';
+      const colors=['#6B21A8','#166534','#D97706','#0369A1','#DC2626'];
+      top5.forEach((p,i)=>{
+        const pFin=calcFin(p.pmonths);
+        const isBest=i===0;
+        h+='<div style="background:'+(isBest?'#F0FDF4':'#FAFAFA')+';border:1px solid '+(isBest?'#86EFAC':'#E5E7EB')+';border-radius:12px;padding:12px 14px;margin-bottom:10px;">';
+        h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+        h+='<div><span style="font-size:13px;font-weight:700;color:'+colors[i]+';">#'+(i+1)+' Entity: '+p.peid+'</span>';
+        if(isBest)h+='<span style="font-size:10px;font-weight:700;color:#166534;background:#DCFCE7;padding:2px 8px;border-radius:10px;margin-right:6px;">⭐ الأفضل للتقديم</span>';
+        h+='</div>';
+        h+='<div style="text-align:right;"><div style="font-size:14px;font-weight:800;color:'+colors[i]+';">'+fmt(p.ptotal)+'</div>';
+        h+='<div style="font-size:10px;color:#9CA3AF;">إجمالي | تمويل متوقع: '+fR(pFin?.estimate)+'</div></div></div>';
+        h+='<div style="overflow-x:auto;">'+makeChart(p.pmonths,colors[i],100)+'</div>';
+        h+='</div>';
+      });
+
+      // باقي الكاشيرات
+      if(rest.length>0){
+        const restTotal=rest.reduce((a,b)=>a+b.ptotal,0);
+        h+='<div style="background:#F5F3FF;border-radius:10px;padding:12px;margin-top:6px;">';
+        h+='<div style="font-size:12px;color:#6B21A8;font-weight:600;">باقي الكاشيرات ('+rest.length+')</div>';
+        h+='<div style="font-size:18px;font-weight:800;color:#6B21A8;">'+fmt(restTotal)+' <span style="font-size:11px;font-weight:400;color:#9CA3AF;">إجمالي مبيعات</span></div>';
+        h+='</div>';
+      }
+
+      // أفضل كاشير للتقديم
+      if(top5.length>0){
+        const best=top5[0];
+        const bestFin=calcFin(best.pmonths);
+        h+='<div style="margin-top:14px;background:linear-gradient(135deg,#166534,#15803D);border-radius:14px;padding:16px;">';
+        h+='<div style="font-size:12px;color:rgba(255,255,255,0.7);margin-bottom:6px;">⭐ أفضل كاشير للتقديم</div>';
+        h+='<div style="font-size:18px;font-weight:800;color:#fff;margin-bottom:4px;">Entity: '+best.peid+'</div>';
+        h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">';
+        h+='<div style="background:rgba(255,255,255,0.12);border-radius:8px;padding:10px;"><div style="font-size:10px;color:rgba(255,255,255,0.6);">المبيعات السنوية</div><div style="font-size:16px;font-weight:800;color:#fff;">'+fR(bestFin?.annualSales)+'</div></div>';
+        h+='<div style="background:rgba(255,255,255,0.12);border-radius:8px;padding:10px;"><div style="font-size:10px;color:rgba(255,255,255,0.6);">التمويل المتوقع (10%)</div><div style="font-size:16px;font-weight:800;color:#fff;">'+fR(bestFin?.estimate)+'</div></div>';
+        h+='</div></div>';
+      }
+      h+='</div>';
+    }
+  }
+
+  // جدول تفاصيل شهرية
+  h+='<div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:14px;">📋 تفاصيل شهرية</div>';
+  h+='<table style="width:100%;border-collapse:collapse;font-size:12px;">';
+  h+='<thead><tr style="background:#F5F3FF;"><th style="padding:8px 12px;text-align:right;color:#6B21A8;font-weight:700;border-bottom:1px solid #DDD6FE;">الشهر</th>';
+  h+='<th style="padding:8px 12px;text-align:left;color:#6B21A8;font-weight:700;border-bottom:1px solid #DDD6FE;font-family:monospace;">المبيعات</th>';
+  h+='<th style="padding:8px 12px;text-align:center;color:#6B21A8;font-weight:700;border-bottom:1px solid #DDD6FE;">vs المتوسط</th></tr></thead><tbody>';
+  [...months].reverse().forEach((m,i)=>{
+    const diff=avg>0?((m.sales-avg)/avg)*100:0;
+    const hi=diff>20,lo=diff<-20;
+    h+='<tr style="background:'+(i%2===0?'#fff':'#FAFAFA')+'">';
+    h+='<td style="padding:8px 12px;color:#4B5563;border-bottom:1px solid #E5E7EB;">'+mLbl(m.month)+'</td>';
+    h+='<td style="padding:8px 12px;text-align:left;font-weight:600;color:'+(hi?'#166534':lo?'#DC2626':'#1A1A2E')+';font-family:monospace;border-bottom:1px solid #E5E7EB;">'+m.sales.toLocaleString('ar-SA',{maximumFractionDigits:0})+'</td>';
+    h+='<td style="padding:8px 12px;text-align:center;border-bottom:1px solid #E5E7EB;"><span style="font-size:11px;color:'+(hi?'#166534':lo?'#DC2626':'#9CA3AF')+';background:'+(hi?'#F0FDF4':lo?'#FEF2F2':'#FAFAFA')+';padding:2px 8px;border-radius:20px;">'+(diff>=0?'+':'')+diff.toFixed(0)+'%</span></td>';
+    h+='</tr>';
+  });
+  h+='</tbody></table></div>';
+
   return h;
 }
 
 // ── INIT ──────────────────────────────────────────
+
 try{const u=lLS('hu5',null);if(u){user=u;updHome();}}catch(e){}
 buildChips();
 </script>
