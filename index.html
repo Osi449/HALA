@@ -888,11 +888,11 @@ async function findByEntity(eid){
 // بحث بالـ TID أو الجوال — يبحث في كل الـ chunks المحملة
 async function findByOther(term){
   // نبحث في clients files إذا كانت محملة
-  for(const key of Object.keys(window)){
-    if(!key.startsWith('EMP_DATA_'))continue;
-    const data=window[key];
-    if(!data?.clients)continue;
-    const found=data.clients.find(c=>
+  for(const _k1 of Object.keys(window)){
+    if(!_k1.startsWith('EMP_DATA_'))continue;
+    const _d1=window[_k1];
+    if(!_d1?.clients)continue;
+    const found=_d1.clients.find(c=>
       String(c.tid||'')===term||
       String(c.cashier||'')===term||
       String(c.manager||'')===term||
@@ -908,11 +908,11 @@ async function findCompanyPeers(companyId){
   if(!companyId)return[];
   // ابحث في clients files عن نفس الـ companyId
   const peers=[];
-  for(const key of Object.keys(window)){
-    if(!key.startsWith('EMP_DATA_'))continue;
-    const data=window[key];
-    if(!data?.clients)continue;
-    data.clients.filter(c=>String(c.cr||c.companyId||'')===String(companyId))
+  for(const _k2 of Object.keys(window)){
+    if(!_k2.startsWith('EMP_DATA_'))continue;
+    const _d2=window[_k2];
+    if(!_d2?.clients)continue;
+    _d2.clients.filter(c=>String(c.cr||c.companyId||'')===String(companyId))
       .forEach(c=>peers.push(c));
   }
   return peers;
