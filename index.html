@@ -1052,10 +1052,23 @@ async function buildAnResult(eid,months,info,fin){
   h+='<div style="font-size:22px;font-weight:900;color:#fff;">'+fmt(fin?.avg6)+'</div>';
   h+='<div style="font-size:10px;color:rgba(255,255,255,0.7);">متوسط آخر 6 أشهر</div></div></div>';
   // تفاصيل العميل
-  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">';
+  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px;">';
   [{l:'النشاط',v:info.cat||'—'},{l:'الزون',v:info.zone||'—'},{l:'المنطقة',v:info.region||'—'}]
     .forEach(x=>{h+='<div style="background:rgba(255,255,255,0.12);border-radius:8px;padding:8px 10px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);margin-bottom:2px;">'+x.l+'</div><div style="font-size:12px;font-weight:700;color:#fff;">'+x.v+'</div></div>';});
-  h+='</div></div></div>';
+  h+='</div>';
+  if(info.mobile||info.owner){
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+    if(info.mobile)h+='<a href="tel:'+info.mobile+'" style="background:rgba(37,211,102,0.25);border:1px solid rgba(37,211,102,0.5);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:8px;text-decoration:none;"><span style="font-size:16px;">📞</span><div><div style="font-size:9px;color:rgba(255,255,255,0.6);">جوال المحاسب</div><div style="font-size:12px;font-weight:700;color:#fff;font-family:monospace;">'+info.mobile+'</div></div></a>';
+    if(info.owner&&info.owner!==info.mobile)h+='<a href="tel:'+info.owner+'" style="background:rgba(99,102,241,0.25);border:1px solid rgba(99,102,241,0.5);border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:8px;text-decoration:none;"><span style="font-size:16px;">👔</span><div><div style="font-size:9px;color:rgba(255,255,255,0.6);">جوال المدير</div><div style="font-size:12px;font-weight:700;color:#fff;font-family:monospace;">'+info.owner+'</div></div></a>';
+    h+='</div>';
+    // WhatsApp links
+    const waMsg=encodeURIComponent("سلام عليكم، معك من هلا تمويل\n\nأنتم مؤهلون مبدئياً للتمويل، هل أنتم مهتمون؟");
+    h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">';
+    if(info.mobile)h+='<a href="https://wa.me/966'+info.mobile+'?text='+waMsg+'" target="_blank" style="background:rgba(37,211,102,0.2);border:1px solid rgba(37,211,102,0.4);border-radius:8px;padding:7px 10px;text-align:center;text-decoration:none;font-size:11px;font-weight:700;color:#fff;">💬 واتساب محاسب</a>';
+    if(info.owner&&info.owner!==info.mobile)h+='<a href="https://wa.me/966'+info.owner+'?text='+waMsg+'" target="_blank" style="background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);border-radius:8px;padding:7px 10px;text-align:center;text-decoration:none;font-size:11px;font-weight:700;color:#fff;">💬 واتساب مدير</a>';
+    h+='</div>';
+  }
+  h+='</div></div>';
 
   // ══ SALES TREND ══
   h+='<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
@@ -1155,11 +1168,19 @@ async function buildAnResult(eid,months,info,fin){
       h+='<div style="background:rgba(255,255,255,0.12);border-radius:8px;padding:10px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);">إجمالي المبيعات الفعلية</div><div style="font-size:15px;font-weight:800;color:#fff;">'+fR(best.fin?.actualSales)+'</div></div>';
       h+='<div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);">التمويل المتوقع (10%)</div><div style="font-size:15px;font-weight:800;color:#fff;">'+fR(best.fin?.estimate)+'</div></div>';
       h+='</div>';
-      h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">';
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">';
       h+='<div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);">TID</div><div style="font-size:12px;font-weight:700;color:#fff;font-family:monospace;">'+(best.info?.tid||'—')+'</div></div>';
       h+='<div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);">الزون</div><div style="font-size:12px;font-weight:700;color:#fff;">'+(best.info?.zone||'—')+'</div></div>';
       h+='<div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);">النشاط</div><div style="font-size:11px;font-weight:700;color:#fff;">'+(best.info?.cat||'—')+'</div></div>';
-      h+='</div></div>';
+      h+='</div>';
+      if(best.info?.mobile||best.info?.owner){
+        const bwMsg=encodeURIComponent("سلام عليكم، معك من هلا تمويل\n\nأنتم مؤهلون مبدئياً للتمويل، هل أنتم مهتمون؟");
+        h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+        if(best.info?.mobile)h+='<a href="https://wa.me/966'+best.info.mobile+'?text='+bwMsg+'" target="_blank" style="background:rgba(255,255,255,0.15);border-radius:8px;padding:8px;text-align:center;text-decoration:none;font-size:11px;font-weight:700;color:#fff;">💬 واتساب محاسب</a>';
+        if(best.info?.owner&&best.info.owner!==best.info.mobile)h+='<a href="https://wa.me/966'+best.info.owner+'?text='+bwMsg+'" target="_blank" style="background:rgba(255,255,255,0.12);border-radius:8px;padding:8px;text-align:center;text-decoration:none;font-size:11px;font-weight:700;color:#fff;">💬 واتساب مدير</a>';
+        h+='</div>';
+      }
+      h+='</div>';
       h+='</div>';
     }
   }
