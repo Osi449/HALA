@@ -889,6 +889,12 @@ async function loadEntityInfo(){
   const results=await Promise.all(Array.from({length:9},(_,i)=>_loadScript(AN_BASE+'entity_info_'+i+'.js')));
   anInfoLoaded=true;return results.some(Boolean);
 }
+let anPhoneLoaded=false;
+async function loadPhoneIndex(){
+  if(anPhoneLoaded&&window.PHONE_INDEX)return true;
+  const ok=await _loadScript(AN_BASE+'phone_index.js');
+  anPhoneLoaded=ok;return ok;
+}
 
 async function findByEntity(eid){
   const ok=await loadSalesIndex();
@@ -905,21 +911,24 @@ function getInfo(eid){
 }
 
 async function resolveSearch(q){
-  // 1. Direct Entity ID
+  // 1. Direct Entity ID (Cashier ID)
   await loadSalesIndex();
   if(window.SALES_INDEX&&window.SALES_INDEX[q]!==undefined) return {eid:q};
   // 2. TID lookup
   await loadTidIndex();
   if(window.TID_INDEX){
     const cashier=window.TID_INDEX[q];
-    if(cashier) return {eid:cashier,foundByTid:true};
+    if(cashier) return {eid:cashier};
   }
-  // 3. Search TID_INDEX values (if q is a phone/cashier not in sales)
-  if(window.TID_INDEX){
-    // Check if q is a cashier mentioned in entity_info
-    await loadEntityInfo();
-    if(window.ENTITY_INFO&&window.ENTITY_INFO[q]) return {eid:q};
+  // 3. Phone number lookup
+  await loadPhoneIndex();
+  if(window.PHONE_INDEX){
+    const cashier=window.PHONE_INDEX[q];
+    if(cashier) return {eid:cashier};
   }
+  // 4. Direct cashier ID in entity_info (not in sales)
+  await loadEntityInfo();
+  if(window.ENTITY_INFO&&window.ENTITY_INFO[q]) return {eid:q};
   return null;
 }
 
