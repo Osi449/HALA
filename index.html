@@ -931,9 +931,11 @@ function calcFin2(months){
   const last6=months.slice(-6).map(m=>m.sales).filter(v=>v>0);
   const avg6=last6.length?last6.reduce((a,b)=>a+b,0)/last6.length:avg;
   const mx=Math.max(...vals),mn2=Math.min(...vals),vol=mx>0?((mx-mn2)/mx)*100:0;
-  const annualSales=avg6*12;
-  const estimate=Math.round(annualSales*0.10/1000)*1000;
-  return{avg,avg6,vol,annualSales,estimate,
+  // المبيعات الفعلية من 2025-01 حتى آخر شهر
+  const actualSales=months.reduce((a,b)=>a+b.sales,0);
+  const estimate=Math.round(actualSales*0.10/1000)*1000;
+  return{avg,avg6,vol,actualSales,estimate,
+    monthCount:months.length,
     grade:vol<50?'منخفض':vol<70?'متوسط':'عالي',
     gradeIcon:vol<50?'🟢':vol<70?'🟡':'⚠️',
     gradeColor:vol<50?'#166534':vol<70?'#D97706':'#DC2626'};
@@ -955,8 +957,15 @@ function makeChart2(chartMonths,color,h2){
   [0,0.5,1].forEach(t=>{const y2=pT+iH*t,v2=mxV-(t*yRng);s+='<line x1="'+pL+'" y1="'+y2+'" x2="'+(cW-pR)+'" y2="'+y2+'" stroke="#E5E7EB" stroke-width="1"/><text x="'+(pL-3)+'" y="'+(y2+4)+'" text-anchor="end" font-size="8" fill="#9CA3AF">'+fmt(v2)+'</text>';});
   s+='<path d="M'+pts[0].x+','+(pT+iH)+' '+pts.map(p=>'L'+p.x+','+p.y).join(' ')+' L'+pts[pts.length-1].x+','+(pT+iH)+' Z" fill="url(#'+gid+')"/>';
   s+='<polyline points="'+poly+'" fill="none" stroke="'+color+'" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
-  pts.forEach(p=>{s+='<circle cx="'+p.x+'" cy="'+p.y+'" r="3" fill="'+color+'" stroke="white" stroke-width="1.5"/>';});
-  pts.forEach(p=>{s+='<text x="'+p.x+'" y="'+(cH-4)+'" text-anchor="middle" font-size="7" fill="#9CA3AF">'+p.month.slice(2)+'</text>';});
+  pts.forEach(p=>{
+    s+='<circle cx="'+p.x+'" cy="'+p.y+'" r="3.5" fill="'+color+'" stroke="white" stroke-width="1.5"/>';
+    // Amount label above dot
+    const lbl=p.v>=1000000?(p.v/1000000).toFixed(1)+'M':p.v>=1000?(p.v/1000).toFixed(0)+'K':Math.round(p.v)+'';
+    const ly=p.y>pT+18?p.y-8:p.y+16;
+    s+='<text x="'+p.x+'" y="'+ly+'" text-anchor="middle" font-size="8" font-weight="700" fill="'+color+'">'+lbl+'</text>';
+    // Month label at bottom
+    s+='<text x="'+p.x+'" y="'+(cH-4)+'" text-anchor="middle" font-size="7" fill="#9CA3AF">'+p.month.slice(2)+'</text>';
+  });
   s+='</svg>';
   return s;
 }
@@ -1058,11 +1067,11 @@ async function buildAnResult(eid,months,info,fin){
 
   // ══ FINANCE ESTIMATE ══
   h+='<div style="background:linear-gradient(135deg,#6B21A8,#166534);border-radius:16px;padding:18px;">';
-  h+='<div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:4px;">💰 التقدير التمويلي المتوقع</div>';
-  h+='<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:10px;">10% من المبيعات السنوية</div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:4px;">💰 التقدير التمويلي</div>';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:10px;">10% من إجمالي المبيعات الفعلية</div>';
   h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
-  h+='<div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;"><div style="font-size:10px;color:rgba(255,255,255,0.6);">المبيعات السنوية المتوقعة</div><div style="font-size:18px;font-weight:800;color:#fff;">'+fR(fin?.annualSales)+'</div></div>';
-  h+='<div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,0.6);">التمويل المتوقع</div><div style="font-size:24px;font-weight:900;color:#fff;">'+fR(fin?.estimate)+'</div></div>';
+  h+='<div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:12px;"><div style="font-size:10px;color:rgba(255,255,255,0.6);">إجمالي المبيعات الفعلية ('+(fin?.monthCount||0)+' شهر)</div><div style="font-size:18px;font-weight:800;color:#fff;">'+fR(fin?.actualSales)+'</div></div>';
+  h+='<div style="background:rgba(255,255,255,0.15);border-radius:10px;padding:12px;text-align:center;"><div style="font-size:10px;color:rgba(255,255,255,0.6);">التمويل المتوقع (10%)</div><div style="font-size:24px;font-weight:900;color:#fff;">'+fR(fin?.estimate)+'</div></div>';
   h+='</div></div>';
 
   // ══ COMPANY PEERS ══
@@ -1139,9 +1148,14 @@ async function buildAnResult(eid,months,info,fin){
       h+='<div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:4px;">⭐ أفضل كاشير للتقديم</div>';
       h+='<div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:2px;">'+(best.info?.name||'Entity '+best.id)+'</div>';
       h+='<div style="font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:10px;">ID: '+best.id+'</div>';
-      h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
-      h+='<div style="background:rgba(255,255,255,0.12);border-radius:8px;padding:10px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);">المبيعات السنوية</div><div style="font-size:15px;font-weight:800;color:#fff;">'+fR(best.fin?.annualSales)+'</div></div>';
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">';
+      h+='<div style="background:rgba(255,255,255,0.12);border-radius:8px;padding:10px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);">إجمالي المبيعات الفعلية</div><div style="font-size:15px;font-weight:800;color:#fff;">'+fR(best.fin?.actualSales)+'</div></div>';
       h+='<div style="background:rgba(255,255,255,0.15);border-radius:8px;padding:10px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);">التمويل المتوقع (10%)</div><div style="font-size:15px;font-weight:800;color:#fff;">'+fR(best.fin?.estimate)+'</div></div>';
+      h+='</div>';
+      h+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">';
+      h+='<div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);">TID</div><div style="font-size:12px;font-weight:700;color:#fff;font-family:monospace;">'+(best.info?.tid||'—')+'</div></div>';
+      h+='<div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);">الزون</div><div style="font-size:12px;font-weight:700;color:#fff;">'+(best.info?.zone||'—')+'</div></div>';
+      h+='<div style="background:rgba(255,255,255,0.1);border-radius:8px;padding:8px;"><div style="font-size:9px;color:rgba(255,255,255,0.6);">النشاط</div><div style="font-size:11px;font-weight:700;color:#fff;">'+(best.info?.cat||'—')+'</div></div>';
       h+='</div></div>';
       h+='</div>';
     }
