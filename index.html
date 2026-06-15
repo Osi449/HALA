@@ -102,6 +102,7 @@ input,textarea,select{font-family:'Cairo',sans-serif;outline:none;}
 
 <div id="tracker" class="page"></div>
 <div id="credit" class="page"></div>
+<div id="creport" class="page"></div>
 <div id="shift" class="page"></div>
 <div id="analyzer" class="page"></div>
 
@@ -548,7 +549,10 @@ function renderCType(){
   const isSup=user.role==='supervisor'||user.role==='region'||user.role==='owner';
   let h=tbH('طلبات التمويل','📋',null,'showPage(\'home\')');
   h+='<div class="content">';
-  if(isSup)h+='<button class="btn-purple" onclick="loadCredit().then(renderCDash)">📊 داشبورد الطلبات</button>';
+  if(isSup){
+    h+='<button class="btn-purple" onclick="loadCredit().then(renderCDash)" style="margin-bottom:8px;">📊 داشبورد الطلبات</button>';
+    h+='<button class="btn-purple" onclick="loadCredit().then(renderEmpReport)" style="background:linear-gradient(135deg,#166534,#15803D);margin-bottom:8px;">👥 تحليل أداء الموظفين</button>';
+  }
   h+='<div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:16px;">رفع طلب جديد</div><div class="ctype-grid">'+CTYPES.map(t=>'<button class="ctbtn" style="border-top:3px solid '+t.color+'" onclick="selCT(\''+t.key+'\')"><div style="font-size:22px;margin-bottom:6px;">'+t.icon+'</div><div style="font-size:12px;font-weight:700;margin-bottom:3px;">'+t.label+'</div><div style="font-size:10px;color:#4B5563;">'+t.desc+'</div></button>').join('')+'</div></div>';
   h+='<button class="btn-outline" onclick="loadCredit().then(renderCMyReqs)">📋 طلباتي السابقة</button></div>';
   document.getElementById('credit').innerHTML=h;
@@ -1255,6 +1259,83 @@ async function buildAnResult(eid,months,info,fin){
 
 try{const u=lLS('hu5',null);if(u){user=u;updHome();}}catch(e){}
 buildChips();
+function renderEmpReport(){
+  if(!user||(user.role!=='region'&&user.role!=='supervisor'&&user.role!=='owner')){return;}
+  showPage('creport');
+  const el=document.getElementById('creport');
+  let h=tbH('تحليل أداء الموظفين','👥','renderCType()','showPage(\'home\')')+'<div class="content">';
+
+  const allInfo=Object.values(TEAMS).flatMap(t=>Object.entries(t.members).map(([k,v])=>({code:k,...v})));
+
+  // ملخص كلي
+  const total=cReqs.length;
+  const approved=cReqs.filter(r=>r.status==='approved').length;
+  const rejected=cReqs.filter(r=>r.status==='rejected').length;
+  const pending=cReqs.filter(r=>!['approved','rejected','done'].includes(r.status)).length;
+  const done=cReqs.filter(r=>r.status==='done').length;
+
+  h+='<div style="background:linear-gradient(135deg,#6B21A8,#166534);border-radius:16px;padding:16px;margin-bottom:16px;">';
+  h+='<div style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:8px;">إجمالي طلبات المنطقة الوسطى</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;">';
+  [{l:'الكل',v:total,c:'#fff'},{l:'✅ موافق',v:approved,c:'#86EFAC'},{l:'❌ مرفوض',v:rejected,c:'#FCA5A5'},{l:'⏳ معلّق',v:pending,c:'#FDE68A'},{l:'🏆 منجز',v:done,c:'#6EE7B7'}]
+    .forEach(x=>{h+='<div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:10px;text-align:center;"><div style="font-size:20px;font-weight:900;color:'+x.c+';">'+x.v+'</div><div style="font-size:9px;color:rgba(255,255,255,0.6);">'+x.l+'</div></div>';});
+  h+='</div></div>';
+
+  // إحصائيات بالنوع
+  h+='<div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:12px;">📦 إجمالي بالنوع</div>';
+  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">';
+  CTYPES.forEach(t=>{
+    const cnt=cReqs.filter(r=>r.client_type===t.key).length;
+    const appr=cReqs.filter(r=>r.client_type===t.key&&r.status==='approved').length;
+    const rej=cReqs.filter(r=>r.client_type===t.key&&r.status==='rejected').length;
+    h+='<div style="background:#FAFAFA;border-radius:10px;padding:10px;border-top:3px solid '+t.color+';">';
+    h+='<div style="font-size:11px;font-weight:700;color:'+t.color+';margin-bottom:6px;">'+t.icon+' '+t.label+'</div>';
+    h+='<div style="font-size:22px;font-weight:900;color:#111;">'+cnt+'</div>';
+    h+='<div style="font-size:10px;color:#9CA3AF;margin-top:4px;">✅ '+appr+' · ❌ '+rej+'</div>';
+    h+='</div>';
+  });
+  h+='</div></div>';
+
+  // تفصيل كل موظف
+  h+='<div class="card"><div style="font-size:13px;font-weight:700;margin-bottom:14px;">👤 تفصيل الموظفين</div>';
+  allInfo.forEach(emp=>{
+    const empReqs=cReqs.filter(r=>r.agent_code===emp.code);
+    if(!empReqs.length)return;
+    const empApp=empReqs.filter(r=>r.status==='approved').length;
+    const empRej=empReqs.filter(r=>r.status==='rejected').length;
+    const empPend=empReqs.filter(r=>!['approved','rejected','done'].includes(r.status)).length;
+    const empDone=empReqs.filter(r=>r.status==='done').length;
+    const rate=empReqs.length?Math.round((empApp+empDone)/empReqs.length*100):0;
+
+    h+='<div style="border:1px solid #E5E7EB;border-right:4px solid '+emp.color+';border-radius:12px;padding:14px;margin-bottom:12px;">';
+    h+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
+    h+='<div><div style="font-size:14px;font-weight:800;color:'+emp.color+';">'+emp.name+'</div>';
+    h+='<div style="font-size:11px;color:#9CA3AF;margin-top:2px;">'+emp.code+' · '+empReqs.length+' طلب</div></div>';
+    h+='<div style="text-align:center;background:'+(rate>=70?'#F0FDF4':rate>=50?'#FFFBEB':'#FEF2F2')+';border-radius:10px;padding:8px 14px;">';
+    h+='<div style="font-size:20px;font-weight:900;color:'+(rate>=70?'#166534':rate>=50?'#D97706':'#DC2626')+';">'+rate+'%</div>';
+    h+='<div style="font-size:9px;color:#9CA3AF;">نسبة الموافقة</div></div></div>';
+    h+='<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">';
+    [{l:'✅ موافق',v:empApp,c:'#166534',bg:'#F0FDF4'},{l:'❌ مرفوض',v:empRej,c:'#DC2626',bg:'#FEF2F2'},{l:'⏳ معلّق',v:empPend,c:'#D97706',bg:'#FFFBEB'},{l:'🏆 منجز',v:empDone,c:'#15803D',bg:'#DCFCE7'}]
+      .forEach(x=>{h+='<div style="background:'+x.bg+';border-radius:8px;padding:8px;text-align:center;"><div style="font-size:18px;font-weight:800;color:'+x.c+';">'+x.v+'</div><div style="font-size:9px;color:#9CA3AF;">'+x.l+'</div></div>';});
+    h+='</div>';
+    h+='<div style="font-size:10px;color:#9CA3AF;margin-bottom:6px;">تفصيل حسب النوع</div>';
+    h+='<div style="display:flex;flex-wrap:wrap;gap:6px;">';
+    CTYPES.forEach(t=>{
+      const cnt2=empReqs.filter(r=>r.client_type===t.key).length;
+      if(!cnt2)return;
+      const appr2=empReqs.filter(r=>r.client_type===t.key&&r.status==='approved').length;
+      const rej2=empReqs.filter(r=>r.client_type===t.key&&r.status==='rejected').length;
+      h+='<div style="background:#F9FAFB;border:1px solid #E5E7EB;border-radius:8px;padding:6px 10px;">';
+      h+='<div style="font-size:10px;font-weight:700;color:'+t.color+';">'+t.icon+' '+t.label+'</div>';
+      h+='<div style="font-size:13px;font-weight:800;color:#111;">'+cnt2+'</div>';
+      h+='<div style="font-size:9px;color:#9CA3AF;">✅'+appr2+' ❌'+rej2+'</div></div>';
+    });
+    h+='</div></div>';
+  });
+  h+='</div></div>';
+  el.innerHTML=h;
+}
+
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </body>
