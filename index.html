@@ -139,7 +139,7 @@ const PF=[
   {key:'sources',label:'كم مصدر تواصلت معه اليوم',icon:'🤝',target:1,unit:'مصدر'}
 ];
 
-const CSTATS=[{key:'pending',label:'Pending with SV',color:'#B7770D',bg:'#FEF3C7',icon:'⏳'},{key:'review',label:'Under Review',color:'#1A5276',bg:'#DBEAFE',icon:'🔍'},{key:'rejected',label:'Rejected',color:'#991B1B',bg:'#FEE2E2',icon:'❌'},{key:'approved',label:'Approved',color:'#065F46',bg:'#D1FAE5',icon:'✅'},{key:'done',label:'Done',color:'#166534',bg:'#A7F3D0',icon:'🏆'}];
+const CSTATS=[{key:'pending',label:'Pending with SV',color:'#B7770D',bg:'#FEF3C7',icon:'⏳'},{key:'pending_ds',label:'Pending with DS',color:'#6B21A8',bg:'#F5F3FF',icon:'📋'},{key:'review',label:'Under Review',color:'#1A5276',bg:'#DBEAFE',icon:'🔍'},{key:'rejected',label:'Rejected',color:'#991B1B',bg:'#FEE2E2',icon:'❌'},{key:'approved',label:'Approved',color:'#065F46',bg:'#D1FAE5',icon:'✅'},{key:'done',label:'Done',color:'#166534',bg:'#A7F3D0',icon:'🏆'}];
 const CTYPES=[{key:'هلا',label:'عميل هلا',icon:'🏪',color:'#166534',desc:'عميل مسجل في هلا'},{key:'شركة',label:'شركة',icon:'🏢',color:'#7C3AED',desc:'عميل شركة'},{key:'Top Up',label:'Top Up',icon:'⬆️',color:'#D97706',desc:'تعلية تمويل'},{key:'Renewal',label:'Renewal',icon:'🔄',color:'#15803D',desc:'تجديد تمويل'},{key:'3-6',label:'3-6 شهور',icon:'📅',color:'#B7770D',desc:'رفض سابق'},{key:'Non-Hala',label:'Non-Hala',icon:'🔗',color:'#6B4C1B',desc:'غير مسجل'}];
 const CF_C=[{key:'cashier_id',label:'Cashier ID',t:'text',req:1},{key:'client_name',label:'اسم العميل',t:'text',req:1},{key:'zone',label:'المنطقة',t:'text',req:1},{key:'offer_amount',label:'المبلغ (SAR)',t:'number',req:1},{key:'reason',label:'سبب التمويل',t:'area',req:1},{key:'balady_url',label:'رابط شهادة بلدي',t:'url',req:1},{key:'shop_photo',label:'رابط صورة المحل',t:'url',req:1},{key:'location',label:'رابط الموقع',t:'url',req:1},{key:'promissory',label:'تفاصيل السند الثاني',t:'area',req:0},{key:'bank_stmt',label:'رابط كشف حساب',t:'url',req:0},{key:'rental',label:'رابط عقد الإيجار',t:'url',req:0}];
 const CF_T=[{key:'cashier_id',label:'Cashier ID',t:'text',req:1},{key:'client_name',label:'اسم العميل',t:'text',req:1},{key:'offer_amount',label:'المبلغ (SAR)',t:'number',req:1},{key:'promissory',label:'تفاصيل السند الثاني',t:'area',req:1}];
@@ -541,7 +541,7 @@ function renderTDetail(code){
 // CREDIT
 // ══════════════════════════════════════════════════
 async function loadCredit(){try{const d=await dbGet('credit_requests','?order=submitted_at.desc');cReqs=Array.isArray(d)?d:[];}catch(e){}}
-function renderCredit(){if(!user){document.getElementById('credit').innerHTML=nlH('credit');return;}loadCredit().then(renderCType);}
+function renderCredit(){if(!user){document.getElementById('credit').innerHTML=nlH('credit');return;}empFilter='all';empNotesSeen=false;loadCredit().then(renderCType);}
 function rTitle(type){const t=gCT(type);return t.icon+' '+t.label;}
 
 function renderCType(){
@@ -598,23 +598,69 @@ function renderCDone(){
 }
 
 function renderCMyReqs(){
-  const mine=cReqs.filter(r=>r.agent_code===user.code);
-  const unread=mine.filter(r=>r.sup_note&&r.sup_note.trim()).length;
+  const myReqs=cReqs.filter(r=>r.agent_code===user.code);
+  const unread=myReqs.filter(r=>r.sup_note&&r.sup_note.trim()).length;
+  const ESTATUS=[
+    {key:'all',label:'الكل',color:'#374151',bg:'#F3F4F6'},
+    {key:'pending',label:'Pending SV',color:'#B7770D',bg:'#FEF3C7'},
+    {key:'pending_ds',label:'Pending DS',color:'#6B21A8',bg:'#F5F3FF'},
+    {key:'review',label:'Under Review',color:'#1A5276',bg:'#DBEAFE'},
+    {key:'approved',label:'Approved',color:'#065F46',bg:'#D1FAE5'},
+    {key:'rejected',label:'Rejected',color:'#991B1B',bg:'#FEE2E2'},
+    {key:'done',label:'Done',color:'#166534',bg:'#A7F3D0'}
+  ];
   let h=tbH('طلباتي','📋','renderCType()','showPage(\'home\')');
   h+='<div class="content">';
-  if(unread)h+='<div class="alert-box" style="background:#F0FDF4;border:1px solid #22C55E;color:#166534;">🔔 لديك '+unread+' طلب فيه ملاحظة من المشرف</div>';
-  h+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;">'+['pending','approved','done'].map(k=>{const s=gSt(k);return'<div class="card-sm" style="text-align:center;border-top:2px solid '+s.color+'"><div style="font-size:20px;font-weight:900;color:'+s.color+'">'+mine.filter(r=>r.status===k).length+'</div><div style="font-size:9px;color:#4B5563;">'+s.label+'</div></div>';}).join('')+'</div>';
-  mine.forEach(req=>{
-    const tc=gCT(req.client_type);
-    h+='<button class="rcard" onclick="renderCDetail(\''+req.id+'\')">';
-    h+='<div style="background:'+tc.color+';padding:10px 16px;display:flex;justify-content:space-between;align-items:center;"><span style="color:#fff;font-size:13px;font-weight:700;">'+rTitle(req.client_type)+' — '+(req.data?.client_name||'—')+'</span>'+bH(req.status)+'</div>';
-    h+='<div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:11px;color:#4B5563;">'+(req.data?.cashier_id||'')+(req.data?.zone?' · '+req.data.zone:'')+'</div><div style="font-size:10px;color:#9CA3AF;">'+new Date(req.submitted_at).toLocaleDateString('ar-SA')+'</div></div><div style="font-size:14px;font-weight:700;color:'+tc.color+'">'+(req.data?.offer_amount?Number(req.data.offer_amount).toLocaleString()+' SAR':'—')+'</div></div>';
-    if(req.sup_note)h+='<div style="padding:7px 16px;background:#F0FDF4;border-top:1px solid #E5E7EB;font-size:11px;color:#166534;">🔔 '+req.sup_note+'</div>';
-    h+='</button>';
-  });
-  h+='<button class="btn-purple" onclick="cType=null;cFD={};renderCType()">+ رفع طلب جديد</button></div>';
+  if(unread&&!empNotesSeen){empNotesSeen=true;h+='<div class="alert-box" style="background:#F0FDF4;border:1px solid #22C55E;color:#166534;">🔔 لديك '+unread+' طلب فيه ملاحظة من المشرف</div>';}
+  h+='<div id="eq-filters" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;"></div>';
+  h+='<div id="eq-list"></div>';
+  h+='<button class="btn-purple" onclick="cType=null;cFD={};renderCType()">+ رفع طلب جديد</button>';
+  h+='</div>';
   document.getElementById('credit').innerHTML=h;
+  window._myReqsCache=myReqs;
+  renderEmpList();
 }
+
+function renderEmpList(){
+  const myReqs=window._myReqsCache||(cReqs.filter(r=>r.agent_code===user.code));
+  window._myReqsCache=myReqs;
+  const ESTATUS=[
+    {key:'all',label:'الكل',color:'#374151',bg:'#F3F4F6'},
+    {key:'pending',label:'Pending SV',color:'#B7770D',bg:'#FEF3C7'},
+    {key:'pending_ds',label:'Pending DS',color:'#6B21A8',bg:'#F5F3FF'},
+    {key:'review',label:'Under Review',color:'#1A5276',bg:'#DBEAFE'},
+    {key:'approved',label:'Approved',color:'#065F46',bg:'#D1FAE5'},
+    {key:'rejected',label:'Rejected',color:'#991B1B',bg:'#FEE2E2'},
+    {key:'done',label:'Done',color:'#166534',bg:'#A7F3D0'}
+  ];
+  const fDiv=document.getElementById('eq-filters');
+  if(fDiv){
+    fDiv.innerHTML='';
+    ESTATUS.forEach(s=>{
+      const cnt=s.key==='all'?myReqs.length:myReqs.filter(r=>r.status===s.key).length;
+      const act=empFilter===s.key;
+      const btn=document.createElement('button');
+      btn.innerHTML=s.label+' <span style="font-size:10px;">('+cnt+')</span>';
+      btn.style.cssText='padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;border:1.5px solid '+(act?s.color:'#E5E7EB')+';background:'+(act?s.bg:'#fff')+';color:'+(act?s.color:'#6B7280')+';font-family:Cairo,sans-serif;margin:2px;';
+      btn.onclick=()=>{empFilter=s.key;renderEmpList();};
+      fDiv.appendChild(btn);
+    });
+  }
+  const el=document.getElementById('eq-list');
+  if(!el)return;
+  const filtered=empFilter==='all'?myReqs:myReqs.filter(r=>r.status===empFilter);
+  if(!filtered.length){el.innerHTML='<div style="text-align:center;padding:30px;color:#9CA3AF;">لا توجد طلبات بهذه الحالة</div>';return;}
+  el.innerHTML=filtered.map(req=>{
+    const tc=gCT(req.client_type);
+    return '<button class="rcard" onclick="renderCDetail(\''+req.id+'\')">'+
+      '<div style="background:'+tc.color+';padding:10px 16px;display:flex;justify-content:space-between;align-items:center;"><span style="color:#fff;font-size:13px;font-weight:700;">'+rTitle(req.client_type)+' — '+(req.data?.client_name||'—')+'</span>'+bH(req.status)+'</div>'+
+      '<div style="padding:10px 16px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:11px;color:#4B5563;">'+(req.data?.cashier_id||'')+(req.data?.zone?' · '+req.data.zone:'')+'</div><div style="font-size:10px;color:#9CA3AF;">'+new Date(req.submitted_at).toLocaleDateString('ar-SA')+'</div></div><div style="font-size:14px;font-weight:700;color:'+tc.color+'">'+(req.data?.offer_amount?Number(req.data.offer_amount).toLocaleString()+' SAR':'—')+'</div></div>'+
+      (req.sup_note?'<div style="padding:7px 16px;background:#F0FDF4;border-top:1px solid #E5E7EB;font-size:11px;color:#166534;">🔔 '+req.sup_note+'</div>':'')+
+      '</button>';
+  }).join('');
+}
+
+function renderCList(){renderEmpList();}
 
 function renderCDetail(id){
   selReq=cReqs.find(r=>r.id===id);if(!selReq)return;
