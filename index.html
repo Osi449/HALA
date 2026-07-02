@@ -119,13 +119,13 @@ async function dbDel(t,m){const q=Object.entries(m).map(([k,v])=>k+'=eq.'+encode
 // ── DATA ─────────────────────────────────────────
 const SPIN='1965', RGN='CENTRAL-MGR', _OWN='CR7';
 const SUPS=['SUP-AZ',RGN];
-const EMP_PINS={'C1-KR':'2061','C2-SM':'1288','C3-MQ':'2659','C4-MN':'1969','C5-MS':'2478','C6-AS':'1381','C7-AA':'2179','C8-AH':'2142','C13-AR':'2850','C10-AR':'2192','C11-KS':'1778','C12-FA':'2713'};
-const FIN_INIT={'C1-KR':500000,'C2-SM':0,'C3-MQ':295000,'C4-MN':0,'C5-MS':785000,'C6-AS':63000,'C7-AA':245000,'C8-AH':50000,'C13-AR':0,'C10-AR':60000,'C11-KS':100000,'C12-FA':26000};
+const EMP_PINS={'C1-KR':'2061','C2-SM':'1288','C3-MQ':'2659','C4-MN':'1969','C5-MS':'2478','C6-AS':'1381','C7-AA':'2179','C8-AH':'2142','C13-AR':'2850','C10-AR':'2192','C11-KS':'1778','C12-MM':'2912'};
+const FIN_INIT={'C1-KR':500000,'C2-SM':0,'C3-MQ':295000,'C4-MN':0,'C5-MS':785000,'C6-AS':63000,'C7-AA':245000,'C8-AH':50000,'C13-AR':0,'C10-AR':60000,'C11-KS':100000,'C12-MM':0};
 const EMP_TGT=583333, RGN_TGT=7000000;
 
 const TEAMS={
   c1:{label:'Central',sup:{code:'SUP-AZ',name:'Abdulaziz Abdulghani',color:'#7C3AED'},
-    members:{'C2-SM':{name:'Syed Masee Ullah',short:'S. Masee',color:'#8B5CF6'},'C3-MQ':{name:'Mohammed Qemaruddin',short:'M. Qemaruddin',color:'#7C3AED'},'C7-AA':{name:'Abdulmajeed Abdulhaleem',short:'Abdulmajeed',color:'#6D28D9'},'C10-AR':{name:'Abdulrahman Abdulhameed',short:'A. Rahman',color:'#5B21B6'},'C11-KS':{name:'Khaled Aydin',short:'Khaled',color:'#4C1D95'},'C12-FA':{name:'Faisal Abdullah Khan',short:'Faisal',color:'#7C3AED'}}},
+    members:{'C2-SM':{name:'Syed Masee Ullah',short:'S. Masee',color:'#8B5CF6'},'C3-MQ':{name:'Mohammed Qemaruddin',short:'M. Qemaruddin',color:'#7C3AED'},'C7-AA':{name:'Abdulmajeed Abdulhaleem',short:'Abdulmajeed',color:'#6D28D9'},'C10-AR':{name:'Abdulrahman Abdulhameed',short:'A. Rahman',color:'#5B21B6'},'C11-KS':{name:'Khaled Aydin',short:'Khaled',color:'#4C1D95'},'C12-MM':{name:'Mohammed Moghazy',short:'Moghazy',color:'#0EA5E9'}}},
   c2:{label:'Central',sup:{code:'SUP-OS',name:'Osman Baboor',color:'#15803D'},
     members:{'C5-MS':{name:'Mohammed Sheer',short:'M. Sheer',color:'#15803D'},'C8-AH':{name:'Abdullah Habiburhman',short:'A. Habiburhman',color:'#166534'},'C1-KR':{name:'Khalilul Rahman',short:'Khalilul',color:'#D97706'},'C6-AS':{name:'Abdullah Saleh',short:'A. Saleh',color:'#7C3AED'},'C4-MN':{name:'Mahmood Najebullah',short:'Mahmood',color:'#EF4444'},'C13-AR':{name:'Alaa Ridan',short:'A. Ridan',color:'#06B6D4'}}}
 };
