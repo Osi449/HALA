@@ -593,7 +593,7 @@ function renderCPreview(){
 }
 async function doSubC(){
   const tc=gCT(cType);document.querySelectorAll('#credit button').forEach(b=>b.disabled=true);
-  try{await dbIns('credit_requests',{id:'REQ-'+Date.now(),agent_code:user.code,agent_name:user.name,client_type:cType,client_type_label:tc.label,data:cFD,status:'pending',sup_note:'',entry_date:tod()});await loadCredit();renderCDone();}
+  try{await dbIns('credit_requests',{id:'REQ-C-'+Date.now(),agent_code:user.code,agent_name:user.name,client_type:cType,client_type_label:tc.label,data:cFD,status:'pending',sup_note:'',region:'central',submitted_at:new Date().toISOString(),entry_date:tod()});await loadCredit();renderCDone();}
   catch(err){document.querySelectorAll('#credit button').forEach(b=>b.disabled=false);alert('خطأ: '+(err?.message||''));}
 }
 function renderCDone(){
