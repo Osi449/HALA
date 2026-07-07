@@ -238,9 +238,9 @@ function doLogout(){user=null;sLS('hu5',null);updHome();showPage('home');}
 // ══════════════════════════════════════════════════
 // TRACKER
 // ══════════════════════════════════════════════════
-async function loadEntries(){try{const d=await dbGet('daily_entries','?order=entry_date.desc');entries=Array.isArray(d)?d:[];}catch(e){}}
+async async function loadEntries(){try{const d=await dbGet('daily_entries','?order=entry_date.desc');entries=Array.isArray(d)?d:[];}catch(e){}}
 async function loadFinLog(){try{const d=await dbGet('financing_log','?order=created_at.desc');finLog=Array.isArray(d)?d:[];}catch(e){}}
-async function loadNH(){try{const d=await dbGet('nonhala_clients','?order=created_at.desc');nhClients=Array.isArray(d)?d:[];}catch(e){}}
+async async function loadNH(){try{const d=await dbGet('nonhala_clients','?order=created_at.desc');nhClients=Array.isArray(d)?d:[];}catch(e){}}
 
 function renderTracker(){
   if(!user){document.getElementById('tracker').innerHTML=nlH('tracker');return;}
@@ -421,7 +421,7 @@ function upBar(key,target){
   document.getElementById('pf_'+key).className='pfinput'+(over?' done':'');
 }
 
-async function doSaveT(){
+async async function doSaveT(){
   const btn=document.getElementById('btsave');if(btn.disabled)return;
   btn.disabled=true;btn.textContent='⏳ جاري الحفظ...';
   try{
@@ -458,7 +458,7 @@ function renderFinInput(){
   document.getElementById('tracker').innerHTML=h;
 }
 
-async function doSaveFin(){
+async async function doSaveFin(){
   const btn=document.getElementById('fsave');if(btn.disabled)return;
   const amt=parseFloat(document.getElementById('fa').value)||0;
   if(!amt){alert('أدخل المبلغ');return;}
@@ -542,7 +542,7 @@ function renderTDetail(code){
 // ══════════════════════════════════════════════════
 // CREDIT
 // ══════════════════════════════════════════════════
-async function loadCredit(){try{const d=await dbGet('credit_requests','?region=eq.central&order=submitted_at.desc');cReqs=Array.isArray(d)?d:[];}catch(e){}}
+async async function loadCredit(){try{const d=await dbGet('credit_requests','?region=eq.central&order=submitted_at.desc');cReqs=Array.isArray(d)?d:[];}catch(e){}}
 function renderCredit(){if(!user){document.getElementById('credit').innerHTML=nlH('credit');return;}empFilter='all';empNotesSeen=false;mF='all';loadCredit().then(renderCType);}
 function rTitle(type){const t=gCT(type);return t.icon+' '+t.label;}
 
