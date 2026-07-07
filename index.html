@@ -427,9 +427,9 @@ async function doSaveT(){
   try{
     const p={agent_code:user.code,agent_name:user.name,entry_date:tod(),
       visits:parseInt(document.getElementById('pf_visits').value)||0,
-      nonhala:parseInt(document.getElementById('pf_nonhala').value)||0,
+      fin_non_hala:parseInt(document.getElementById('pf_nonhala').value)||0,
       cards:parseInt(document.getElementById('pf_cards').value)||0,
-      finance:parseInt(document.getElementById('pf_finance').value)||0,
+      fin_hala:parseInt(document.getElementById('pf_finance').value)||0,
       sources:parseInt(document.getElementById('pf_sources').value)||0,
       notes:document.getElementById('tnotes').value||''};
     await dbUp('daily_entries',p,'agent_code,entry_date');
