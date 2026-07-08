@@ -603,7 +603,8 @@ function renderCDone(){
 }
 
 function renderCMyReqs(){
-  const myReqs=cReqs.filter(r=>r.agent_code===user.code);
+  const allMyReqs=cReqs.filter(r=>r.agent_code===user.code);
+  const myReqs=filterByMonth(allMyReqs);
   const unread=myReqs.filter(r=>r.sup_note&&r.sup_note.trim()).length;
   const ESTATUS=[
     {key:'all',label:'الكل',color:'#374151',bg:'#F3F4F6'},
@@ -623,12 +624,15 @@ function renderCMyReqs(){
   h+='</div>';
   document.getElementById('credit').innerHTML=h;
   window._myReqsCache=myReqs;
+  window._allMyReqsCache=allMyReqs;
   renderEmpList();
 }
 
 function renderEmpList(){
-  const myReqs=window._myReqsCache||(cReqs.filter(r=>r.agent_code===user.code));
+  const allMyReqs=window._allMyReqsCache||(cReqs.filter(r=>r.agent_code===user.code));
+  const myReqs=filterByMonth(allMyReqs);
   window._myReqsCache=myReqs;
+  window._allMyReqsCache=allMyReqs;
   const ESTATUS=[
     {key:'all',label:'الكل',color:'#374151',bg:'#F3F4F6'},
     {key:'pending',label:'Pending SV',color:'#B7770D',bg:'#FEF3C7'},
