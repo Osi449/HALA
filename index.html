@@ -124,7 +124,7 @@ function sanitize(str){
 async function dbDel(t,m){const q=Object.entries(m).map(([k,v])=>k+'=eq.'+encodeURIComponent(v)).join('&');await fetch(SB+'/rest/v1/'+t+'?'+q,{method:'DELETE',headers:SH});}
 
 // ── DATA ─────────────────────────────────────────
-const SPIN='1965', RGN='CENTRAL-MGR', _OWN='CR7';
+const SPIN='1965', RGN='CENT-MGR', _OWN='CR7';
 const SUPS=['SUP-AZ',RGN];
 const EMP_PINS={'C1-KR':'2192','C2-SM':'1756','C3-MQ':'2341','C4-MN':'1234','C5-MS':'1357','C6-AS':'2468','C7-AA':'1893','C8-AH':'1234','C10-AR':'2850','C11-KS':'1778','C12-MM':'2912','C13-AR':'1596'};
 const FIN_INIT={'C1-KR':500000,'C2-SM':0,'C3-MQ':295000,'C4-MN':0,'C5-MS':785000,'C6-AS':63000,'C7-AA':245000,'C8-AH':50000,'C13-AR':0,'C10-AR':60000,'C11-KS':100000,'C12-MM':0};
