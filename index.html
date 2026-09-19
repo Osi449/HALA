@@ -589,7 +589,7 @@ function selCT(key){cType=key;cFD={};renderCForm();}
 
 function fH(f,color){
   if(f.t==='area')return'<div><label class="field-label" style="color:'+color+'">'+f.label+(f.req?'<span style="color:#DC2626"> ✱</span>':'')+'</label><textarea class="field-input" id="cf_'+f.key+'" rows="3" dir="rtl" oninput="cFD[\''+f.key+'\']=this.value">'+(cFD[f.key]||'')+'</textarea></div>';
-  if(f.t==='url')return'<div><label class="field-label" style="color:'+color+'">'+f.label+(f.req?'<span style="color:#DC2626"> ✱</span>':'')+'</label><div class="url-wrap"><input class="field-input" id="cf_'+f.key+'" type="url" placeholder="https://files.fm/..." dir="ltr" value="'+(cFD[f.key]||'')+'" oninput="cFD[\''+f.key+'\']=this.value"><a href="https://files.fm" target="_blank" class="btn-fm">📎</a></div></div>';
+  if(f.t==='url')return'<div><label class="field-label" style="color:'+color+'">'+f.label+(f.req?'<span style="color:#DC2626"> ✱</span>':'')+'</label><div class="url-wrap"><input class="field-input" id="cf_'+f.key+'" type="url" placeholder="https://onedrive.live.com/..." dir="ltr" value="'+(cFD[f.key]||'')+'" oninput="cFD[\''+f.key+'\']=this.value"><a href="https://onedrive.live.com" target="_blank" class="btn-fm">📎</a></div></div>';
   return'<div><label class="field-label" style="color:'+color+'">'+f.label+(f.req?'<span style="color:#DC2626"> ✱</span>':'')+'</label><input class="field-input" id="cf_'+f.key+'" type="'+f.t+'" dir="'+(f.t==='url'||f.t==='email'?'ltr':'rtl')+'" value="'+(cFD[f.key]||'')+'" oninput="cFD[\''+f.key+'\']=this.value"></div>';
 }
 
